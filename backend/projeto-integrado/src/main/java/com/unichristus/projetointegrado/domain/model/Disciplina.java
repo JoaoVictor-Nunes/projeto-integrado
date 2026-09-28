@@ -1,9 +1,6 @@
 package com.unichristus.projetointegrado.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +12,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "tb_categorias")
-public class Categoria {
+public class Disciplina {
     @Id
     private Long id;
 
@@ -25,5 +22,6 @@ public class Categoria {
     @Column(nullable = false)
     private String descricao;
 
-    Set<Material> materiais;
+    @ManyToMany(mappedBy = "disciplinas")
+    private Set<Material> materiais;
 }
