@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # --- Banco de Dados Relacional ---
+  postgres:
+    image: postgres:16
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: meubanco
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # --- Interface do Banco ---
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+  # --- Servidor de Arquivos (PDFs) ---
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: minio-server
+    ports:
+      - "9000:9000"      # Porta da API
+      - "9001:9001"      # Porta do Console
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+# Definindo volumes para não perder os dados ao desligar o PC
+volumes:
+  postgres_data:
+  minio_data:
