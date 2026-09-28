@@ -1,7 +1,13 @@
 package com.unichristus.projetointegrado.domain.dto.user;
 
 import com.unichristus.projetointegrado.domain.model.TipoPerfil;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class UserResponseDTO {
     private Long id;
 

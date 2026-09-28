@@ -17,11 +17,11 @@ public class HistoricoLeitura {
     private Long id;
 
     @ManyToOne
-    @Column(nullable = false)
+    @JoinColumn(nullable = false)
     private User usuario;
 
     @ManyToOne
-    @Column(nullable = false)
+    @JoinColumn(nullable = false)
     private Material material;
 
     @Column(nullable = false)

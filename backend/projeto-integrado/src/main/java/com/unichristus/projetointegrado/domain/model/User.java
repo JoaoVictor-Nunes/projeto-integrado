@@ -17,12 +17,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String matricula;
+
     @Column(nullable = false)
     private String nome;
 
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private String senhaHash;
 
     @Enumerated(EnumType.STRING)

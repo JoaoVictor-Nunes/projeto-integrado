@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # --- Banco de Dados Relacional ---
   postgres:
@@ -26,21 +24,7 @@ services:
     depends_on:
       - postgres
 
-  # --- Servidor de Arquivos (PDFs) ---
-  minio:
-    image: quay.io/minio/minio:latest
-    container_name: minio-server
-    ports:
-      - "9000:9000"      # Porta da API
-      - "9001:9001"      # Porta do Console
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: password123
-    volumes:
-      - minio_data:/data
-    command: server /data --console-address ":9001"
 
 # Definindo volumes para não perder os dados ao desligar o PC
 volumes:
   postgres_data:
-  minio_data:
