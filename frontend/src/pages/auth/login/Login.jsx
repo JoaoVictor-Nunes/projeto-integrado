@@ -1,11 +1,8 @@
-import UnderConstruction from "../../UnderConstruction";
+import React from 'react';
+import { LoginForm } from '../../../components/auth/LoginForm';
 
-const Login = () => {
-    return (
-        <div>
-            {/*FORMULARIO DE LOGIN AQUI*/}
-            < UnderConstruction />
-        </div>
-    )
-}
+export const Login = () => {
+  return <LoginForm />;
+};
+
 export default Login;
