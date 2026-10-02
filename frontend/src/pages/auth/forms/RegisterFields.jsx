@@ -2,9 +2,9 @@ import { Box, Typography, Button } from '@mui/material';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutlineOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
-import { TextInput } from '../TextInput';
-import { PasswordField } from '../PasswordField';
-import { formTitleSx, formLeadSx, formGridSx, errorMsgSx, primaryButtonSx } from '../LoginForm.styles';
+import { TextInput } from '../../../components/TextInput';
+import { PasswordField } from './PasswordField';
+import { formTitleSx, formLeadSx, formGridSx, errorMsgSx, primaryButtonSx } from './LoginForm.styles';
 
 export const RegisterFields = ({ data, onChange, message, onSubmit, loading }) => (
   <>

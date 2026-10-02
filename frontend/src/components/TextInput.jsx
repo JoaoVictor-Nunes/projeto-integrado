@@ -1,5 +1,5 @@
 import { TextField, InputAdornment } from '@mui/material';
-import { textFieldSx } from './LoginForm.styles';
+import { textFieldSx } from '../pages/auth/forms/LoginForm.styles';
 
 /** Campo de texto reutilizável com o visual dos inputs originais. */
 export const TextInput = ({ icon, placeholder, label, ...rest }) => (

@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
-import Login from "../pages/auth/login/Login";
+import Auth from "../pages/auth/Auth";
 import Home from "../pages/home/Home";
 import Favoritos from "../pages/UserPadrao/favoritos/Favoritos";
 import Historico from "../pages/UserPadrao/historico/Historico";
@@ -22,7 +22,7 @@ export const AppRoutes = () => {
       <Route path="/" element={<Navigate to="/home" replace />} />
 
       {/* Rotas Públicas */}
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Auth />} />
       <Route path="/home" element={<Home />} />
 
       {/* Rotas Protegidas - Usuário / Aluno / Professor */}

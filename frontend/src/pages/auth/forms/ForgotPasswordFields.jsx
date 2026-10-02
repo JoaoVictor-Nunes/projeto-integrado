@@ -1,7 +1,7 @@
 import { Box, Typography, Button } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import { TextInput } from '../TextInput';
-import { formTitleSx, formLeadSx, formGridSx, errorMsgSx, primaryButtonSx, linkButtonSx } from '../LoginForm.styles';
+import { TextInput } from '../../../components/TextInput'
+import { formTitleSx, formLeadSx, formGridSx, errorMsgSx, primaryButtonSx, linkButtonSx } from './LoginForm.styles';
 
 export const ForgotPasswordFields = ({ email, onEmailChange, message, onSubmit, onBack }) => (
   <>

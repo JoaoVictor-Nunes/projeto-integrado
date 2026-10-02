@@ -7,9 +7,10 @@ import { LoginFields } from './forms/LoginFields';
 import { RegisterFields } from './forms/RegisterFields';
 import { ForgotPasswordFields } from './forms/ForgotPasswordFields';
 import { ForgotCodeFields } from './forms/ForgotCodeFields';
-import { wrapperSx, authCardSx, formPaneSx } from './LoginForm.styles';
+import { wrapperSx, authCardSx, formPaneSx } from './forms/LoginForm.styles';
 
-export const LoginForm = () => {
+
+export const AuthForm = () => {
   const navigate = useNavigate();
 
   const {

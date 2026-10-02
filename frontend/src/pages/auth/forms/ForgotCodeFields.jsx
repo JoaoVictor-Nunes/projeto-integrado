@@ -1,6 +1,6 @@
 import { Box, Typography, Button } from '@mui/material';
 import LockClockOutlinedIcon from '@mui/icons-material/LockClockOutlined';
-import { TextInput } from '../TextInput';
+import { TextInput } from '../../../components/TextInput';
 import {
   formTitleSx,
   formLeadSx,
@@ -9,7 +9,7 @@ import {
   attemptTimerSx,
   primaryButtonSx,
   linkButtonSx,
-} from '../LoginForm.styles';
+} from '../forms/LoginForm.styles';
 
 export const ForgotCodeFields = ({
   code,

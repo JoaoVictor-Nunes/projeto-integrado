@@ -9,7 +9,7 @@ import {
   heroCopySx,
   heroAskSx,
   ghostButtonSx,
-} from './LoginForm.styles';
+} from './forms/LoginForm.styles';
 
 const HERO_CONTENT = {
   register: {
