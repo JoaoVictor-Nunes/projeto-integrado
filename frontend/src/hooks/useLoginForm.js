@@ -1,11 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useAuth } from './useAuth';
+import { useAttemptLock } from './useAttemptLock';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const useLoginForm = (onSuccess) => {
   const { login, register } = useAuth();
 
-  // Estados dos inputs
-  const [loginData, setLoginData] = useState({ email: '', senha: '' });
+  const [loginData, setLoginData] = useState({ identificador: '', senha: '' });
   const [registerData, setRegisterData] = useState({
     nome: '',
     email: '',
@@ -17,64 +19,61 @@ export const useLoginForm = (onSuccess) => {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotCode, setForgotCode] = useState('');
 
-  // UI
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Rate Limiting (5 tentativas / 60s)
-  const [attempts, setAttempts] = useState(0);
-  const [lockedUntil, setLockedUntil] = useState(0);
-  const [remainingTime, setRemainingTime] = useState(0);
-  const timerRef = useRef(null);
+  const [loginMessage, setLoginMessage] = useState('');
+  const [registerMessage, setRegisterMessage] = useState('');
+  const [forgotMessage, setForgotMessage] = useState('');
+  const [codeMessage, setCodeMessage] = useState('');
 
-  useEffect(() => {
-    if (lockedUntil > Date.now()) {
-      timerRef.current = setInterval(() => {
-        const diff = Math.max(0, Math.ceil((lockedUntil - Date.now()) / 1000));
-        setRemainingTime(diff);
-        if (diff === 0) {
-          clearInterval(timerRef.current);
-          setAttempts(0);
-        }
-      }, 250);
-    }
-    return () => clearInterval(timerRef.current);
-  }, [lockedUntil]);
+  const loginLock = useAttemptLock();
+  const codeLock = useAttemptLock();
 
-  const handleFailAttempt = () => {
-    const nextAttempts = attempts + 1;
-    if (nextAttempts >= 5) {
-      setLockedUntil(Date.now() + 60000);
-      setRemainingTime(60);
-      setAttempts(0);
-      setErrorMessage('Muitas tentativas. Aguarde 60s para tentar novamente.');
-    } else {
-      setAttempts(nextAttempts);
-      setErrorMessage(`Tentativa ${nextAttempts} de 5.`);
-    }
+  const updateLoginField = (field, value) =>
+    setLoginData((prev) => ({ ...prev, [field]: value }));
+
+  const updateRegisterField = (field, value) =>
+    setRegisterData((prev) => ({ ...prev, [field]: value }));
+
+  const validateLogin = () => {
+    const value = loginData.identificador.trim();
+    if (!value) return 'Informe seu e-mail ou matrícula.';
+    if (value.includes('@') && !EMAIL_REGEX.test(value)) return 'Informe um e-mail válido ou uma matrícula.';
+    if (value.length < 4) return 'Informe um e-mail ou matrícula válido.';
+    if (!loginData.senha) return 'Informe sua senha.';
+    return null;
+  };
+
+  const validateRegister = () => {
+    if (registerData.nome.trim().length < 3) return 'Informe seu nome completo.';
+    if (!EMAIL_REGEX.test(registerData.email.trim())) return 'Informe um e-mail válido.';
+    if (registerData.matricula.trim().length < 4) return 'Informe uma matrícula válida.';
+    if (registerData.senha.length < 6) return 'A senha precisa ter ao menos 6 caracteres.';
+    if (registerData.senha !== registerData.confirmar) return 'As senhas não coincidem.';
+    return null;
   };
 
   const submitLogin = async (e) => {
     e.preventDefault();
-    if (Date.now() < lockedUntil) return;
+    if (loginLock.isLocked) return;
 
-    if (!loginData.email || !loginData.senha) {
-      setErrorMessage('Preencha o e-mail e a senha.');
+    const validationError = validateLogin();
+    if (validationError) {
+      setLoginMessage(validationError);
       return;
     }
+    setLoginMessage('');
 
     setLoading(true);
     setErrorMessage('');
     try {
-      const user = await login({ email: loginData.email, password: loginData.senha });
-      setAttempts(0);
+      const user = await login({ email: loginData.identificador.trim(), password: loginData.senha });
+      loginLock.reset();
       onSuccess?.(user);
     } catch (err) {
-      handleFailAttempt();
-      if (Date.now() >= lockedUntil) {
-        setErrorMessage(err.response?.data?.message || 'E-mail ou senha inválidos.');
-      }
+      loginLock.registerFailure();
+      setLoginMessage(err.response?.data?.message || 'E-mail ou senha inválidos.');
     } finally {
       setLoading(false);
     }
@@ -82,46 +81,77 @@ export const useLoginForm = (onSuccess) => {
 
   const submitRegister = async (e, onRegisterSuccess) => {
     e.preventDefault();
-    setErrorMessage('');
 
-    if (registerData.senha !== registerData.confirmar) {
-      setErrorMessage('As senhas não coincidem.');
+    const validationError = validateRegister();
+    if (validationError) {
+      setRegisterMessage(validationError);
       return;
     }
+    setRegisterMessage('');
 
     setLoading(true);
     try {
       await register({
-        nome: registerData.nome,
-        email: registerData.email,
+        nome: registerData.nome.trim(),
+        email: registerData.email.trim(),
         password: registerData.senha,
         tipoPerfil: registerData.tipoPerfil,
       });
       onRegisterSuccess?.();
     } catch (err) {
-      setErrorMessage(err.response?.data?.message || 'Erro ao realizar cadastro.');
+      setRegisterMessage(err.response?.data?.message || 'Erro ao realizar cadastro.');
     } finally {
       setLoading(false);
     }
   };
 
+  const submitForgotEmail = (e, onSent) => {
+    e.preventDefault();
+    if (!EMAIL_REGEX.test(forgotEmail.trim())) {
+      setForgotMessage('Informe um e-mail válido.');
+      return;
+    }
+    setForgotMessage('');
+    onSent?.();
+  };
+
+  const submitForgotCode = (e, onVerified) => {
+    e.preventDefault();
+    if (codeLock.isLocked) return;
+
+    const cleanCode = forgotCode.replace(/\D/g, '');
+    if (!/^[0-9]{6}$/.test(cleanCode)) {
+      setCodeMessage('Digite o código de 6 dígitos enviado para o seu e-mail.');
+      codeLock.registerFailure();
+      return;
+    }
+
+    setCodeMessage('');
+    codeLock.reset();
+    onVerified?.();
+  };
+
   return {
     loginData,
-    setLoginData,
+    updateLoginField,
     registerData,
-    setRegisterData,
+    updateRegisterField,
     forgotEmail,
     setForgotEmail,
     forgotCode,
     setForgotCode,
-    showPassword,
-    setShowPassword,
     loading,
     errorMessage,
     setErrorMessage,
-    isLocked: Date.now() < lockedUntil,
-    remainingTime,
+    loginMessage,
+    registerMessage,
+    forgotMessage,
+    codeMessage,
+    loginLock,
+    codeLock,
     submitLogin,
     submitRegister,
+    submitForgotEmail,
+    submitForgotCode,
   };
 };
