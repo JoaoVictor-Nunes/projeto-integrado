@@ -1,16 +1,16 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
-import Auth from "../pages/auth/Auth";
-import Home from "../pages/home/Home";
-import Favoritos from "../pages/UserPadrao/favoritos/Favoritos";
-import Historico from "../pages/UserPadrao/historico/Historico";
-import Material from "../pages/UserPadrao/material/Material";
-import PerfilUsuario from "../pages/UserPadrao/perfil/PerfilUser";
-import Dashboard from "../pages/admin/adminDashboard/Dashboard";
-import GestaoAcervo from "../pages/admin/gestaoAcervo/GestaoAcervo";
-import GestaoUsuarios from "../pages/admin/gestaoUsuarios/GestaoUsuarios";
-import PageNotFound from "../pages/PageNotFound/PageNotFound";
-import Auditoria from "../pages/admin/Auditoria/Auditoria";
+import Auth from "@/pages/auth/Auth";
+import Home from "@/pages/home/Home";
+import Favoritos from "@/pages/UserPadrao/favoritos/Favoritos";
+import Historico from "@/pages/UserPadrao/historico/Historico";
+import Material from "@/pages/UserPadrao/material/Material";
+import PerfilUsuario from "@/pages/UserPadrao/perfil/PerfilUser";
+import Dashboard from "@/pages/admin/adminDashboard/Dashboard";
+import GestaoAcervo from "@/pages/admin/gestaoAcervo/GestaoAcervo";
+import GestaoUsuarios from "@/pages/admin/gestaoUsuarios/GestaoUsuarios";
+import PageNotFound from "@/pages/PageNotFound/PageNotFound";
+import Auditoria from "@/pages/admin/Auditoria/Auditoria";
 
 import RotasProtegidas from "./RotasProtegidas";
 

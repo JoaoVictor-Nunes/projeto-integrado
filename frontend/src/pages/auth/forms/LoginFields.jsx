@@ -1,6 +1,6 @@
 import { Box, Typography, Button } from '@mui/material';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import { TextInput } from '../../../components/TextInput';
+import { TextInput } from '@/components/TextInput';
 import { PasswordField } from './PasswordField';
 import {
   formTitleSx,
@@ -10,7 +10,7 @@ import {
   linkButtonSx,
   attemptTimerSx,
   primaryButtonSx,
-} from './LoginForm.styles';
+} from '../../../styles/LoginForm.styles';
 
 export const LoginFields = ({
   identificador,

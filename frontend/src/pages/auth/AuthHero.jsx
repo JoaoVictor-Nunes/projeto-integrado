@@ -1,5 +1,5 @@
 import { Box, Typography, Button } from '@mui/material';
-import logoSibv from '../../assets/logo-sibv.png';
+import logoSibv from '@/assets/logo-sibv.png';
 import {
   heroSx,
   heroViewSx,
@@ -9,7 +9,7 @@ import {
   heroCopySx,
   heroAskSx,
   ghostButtonSx,
-} from './forms/LoginForm.styles';
+} from '@/styles/LoginForm.styles';
 
 const HERO_CONTENT = {
   register: {

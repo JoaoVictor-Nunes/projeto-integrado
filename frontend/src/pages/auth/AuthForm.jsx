@@ -1,13 +1,13 @@
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useLoginForm } from '../../hooks/useLoginForm';
-import { useAuthModeTransition } from '../../hooks/useAuthModeTransition';
+import { useLoginForm } from '@/hooks/useLoginForm';
+import { useAuthModeTransition } from '@/hooks/useAuthModeTransition';
 import { AuthHero } from './AuthHero';
 import { LoginFields } from './forms/LoginFields';
 import { RegisterFields } from './forms/RegisterFields';
 import { ForgotPasswordFields } from './forms/ForgotPasswordFields';
 import { ForgotCodeFields } from './forms/ForgotCodeFields';
-import { wrapperSx, authCardSx, formPaneSx } from './forms/LoginForm.styles';
+import { wrapperSx, authCardSx, formPaneSx } from '@/styles/LoginForm.styles';
 
 
 export const AuthForm = () => {
