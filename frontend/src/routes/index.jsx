@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
-import Login from "../pages/auth/login/Login";
+import Auth from "../pages/auth/Auth";
 import Home from "../pages/home/Home";
 import Favoritos from "../pages/UserPadrao/favoritos/Favoritos";
 import Historico from "../pages/UserPadrao/historico/Historico";
@@ -12,22 +12,37 @@ import GestaoUsuarios from "../pages/admin/gestaoUsuarios/GestaoUsuarios";
 import PageNotFound from "../pages/PageNotFound/PageNotFound";
 import Auditoria from "../pages/admin/Auditoria/Auditoria";
 
+import RotasProtegidas from "./RotasProtegidas";
+
 export const AppRoutes = () => {
-    return (
-        <Routes>
-            <Route path="/" element={<Navigate to="/home" replace />} />
-            <Route path="/login" element={< Login />} />
-            <Route path="/home" element={< Home />} />
-            <Route path="/favoritos" element={< Favoritos />} />
-            <Route path="/historico" element={< Historico />} />
-            <Route path="/materiais" element={< Material />} />
-            <Route path="/perfil" element={< PerfilUsuario />} />
-            <Route path="/admin/estatisticas" element={< Dashboard />} />
-            <Route path="/admin/acervo" element={< GestaoAcervo />} />
-            <Route path="/admin/usuarios" element={< GestaoUsuarios />} />
-            <Route path="/admin/auditoria" element={< Auditoria />} />
-            <Route path="*" element={< PageNotFound />} />
-         </Routes>
-    )
-}
+  return (
+    <Routes>
+      {/* Redirecionamento inicial */}
+      <Route path="/" element={<Navigate to="/home" replace />} />
+
+      {/* Rotas Públicas */}
+      <Route path="/login" element={<Auth />} />
+      <Route path="/home" element={<Home />} />
+
+      {/* Rotas Protegidas - Usuário / Aluno / Professor */}
+      <Route element={<RotasProtegidas />}>
+        <Route path="/favoritos" element={<Favoritos />} />
+        <Route path="/historico" element={<Historico />} />
+        <Route path="/materiais" element={<Material />} />
+        <Route path="/perfil" element={<PerfilUsuario />} />
+      </Route>
+
+      {/* Rotas Protegidas - Apenas Administrador */}
+      <Route element={<RotasProtegidas allowedRoles={["ADMIN"]} />}>
+        <Route path="/admin/acervo" element={<GestaoAcervo />} />
+        <Route path="/admin/auditoria" element={< Auditoria />} />
+        <Route path="/admin/usuarios" element={<GestaoUsuarios />} />
+        <Route path="/admin/estatisticas" element={< Dashboard />} />
+      </Route>
+
+      {/* Rota 404 */}
+      <Route path="*" element={<PageNotFound />} />
+    </Routes>
+  );
+};
 export default AppRoutes;
