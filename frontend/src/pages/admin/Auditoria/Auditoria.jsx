@@ -1,10 +1,10 @@
 import UnderConstruction from "../../UnderConstruction";
 
-const Relatorios = () => {
+const Auditoria = () => {
   return (
     <div>
       <UnderConstruction />
     </div>
   );
 };
-export default Relatorios;
+export default Auditoria;

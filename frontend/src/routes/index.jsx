@@ -8,10 +8,9 @@ import Material from "../pages/UserPadrao/material/Material";
 import PerfilUsuario from "../pages/UserPadrao/perfil/PerfilUser";
 import Dashboard from "../pages/admin/adminDashboard/Dashboard";
 import GestaoAcervo from "../pages/admin/gestaoAcervo/GestaoAcervo";
-import GestaoCategorias from "../pages/admin/gestaoCategorias/GestaoCategorias";
 import GestaoUsuarios from "../pages/admin/gestaoUsuarios/GestaoUsuarios";
-import Relatorios from "../pages/admin/relatorios/Relatorios";
 import PageNotFound from "../pages/PageNotFound/PageNotFound";
+import Auditoria from "../pages/admin/Auditoria/Auditoria";
 
 export const AppRoutes = () => {
     return (
@@ -23,11 +22,10 @@ export const AppRoutes = () => {
             <Route path="/historico" element={< Historico />} />
             <Route path="/materiais" element={< Material />} />
             <Route path="/perfil" element={< PerfilUsuario />} />
-            <Route path="/admin/dashboard" element={< Dashboard />} />
+            <Route path="/admin/estatisticas" element={< Dashboard />} />
             <Route path="/admin/acervo" element={< GestaoAcervo />} />
-            <Route path="/admin/categorias" element={< GestaoCategorias />} />
             <Route path="/admin/usuarios" element={< GestaoUsuarios />} />
-            <Route path="/admin/relatorios" element={< Relatorios />} />
+            <Route path="/admin/auditoria" element={< Auditoria />} />
             <Route path="*" element={< PageNotFound />} />
          </Routes>
     )
