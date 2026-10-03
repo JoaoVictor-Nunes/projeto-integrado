@@ -8,10 +8,10 @@ export const useLoginForm = (onSuccess) => {
   const { login, register } = useAuth();
 
   const [loginData, setLoginData] = useState({ identificador: '', senha: '' });
+  // Campo "matricula" removido: agora é gerado automaticamente pelo backend.
   const [registerData, setRegisterData] = useState({
     nome: '',
     email: '',
-    matricula: '',
     senha: '',
     confirmar: '',
     tipoPerfil: 'ALUNO', // Perfil padrão requerido pelo backend
@@ -48,7 +48,6 @@ export const useLoginForm = (onSuccess) => {
   const validateRegister = () => {
     if (registerData.nome.trim().length < 3) return 'Informe seu nome completo.';
     if (!EMAIL_REGEX.test(registerData.email.trim())) return 'Informe um e-mail válido.';
-    if (registerData.matricula.trim().length < 4) return 'Informe uma matrícula válida.';
     if (registerData.senha.length < 6) return 'A senha precisa ter ao menos 6 caracteres.';
     if (registerData.senha !== registerData.confirmar) return 'As senhas não coincidem.';
     return null;
@@ -73,7 +72,7 @@ export const useLoginForm = (onSuccess) => {
       onSuccess?.(user);
     } catch (err) {
       loginLock.registerFailure();
-      setLoginMessage(err.response?.data?.message || 'E-mail ou senha inválidos.');
+      setLoginMessage(err.response?.data?.detail || 'E-mail ou senha inválidos.');
     } finally {
       setLoading(false);
     }
@@ -91,15 +90,27 @@ export const useLoginForm = (onSuccess) => {
 
     setLoading(true);
     try {
-      await register({
+      const usuarioCriado = await register({
         nome: registerData.nome.trim(),
         email: registerData.email.trim(),
         password: registerData.senha,
         tipoPerfil: registerData.tipoPerfil,
       });
+
+      // A matrícula foi gerada pelo backend; exibe para o usuário guardar.
+      if (usuarioCriado?.matricula) {
+        setRegisterMessage(`Cadastro realizado! Sua matrícula é ${usuarioCriado.matricula}.`);
+      }
+
       onRegisterSuccess?.();
     } catch (err) {
-      setRegisterMessage(err.response?.data?.message || 'Erro ao realizar cadastro.');
+      // O backend responde no formato Problem Details: a mensagem vem em "detail",
+      // e erros de validação por campo vêm em "erros".
+      const data = err.response?.data;
+      const mensagem = data?.erros
+        ? Object.values(data.erros).join(' | ')
+        : data?.detail || 'Erro ao realizar cadastro.';
+      setRegisterMessage(mensagem);
     } finally {
       setLoading(false);
     }

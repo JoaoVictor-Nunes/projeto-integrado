@@ -1,10 +1,10 @@
 import { Box, Typography, Button } from '@mui/material';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutlineOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import { TextInput } from '@/components/TextInput';
 import { PasswordField } from './PasswordField';
 import { formTitleSx, formLeadSx, formGridSx, errorMsgSx, primaryButtonSx } from '@/styles/LoginForm.styles';
+
 
 export const RegisterFields = ({ data, onChange, message, onSubmit, loading }) => (
   <>
@@ -29,15 +29,6 @@ export const RegisterFields = ({ data, onChange, message, onSubmit, loading }) =
         required
         value={data.email}
         onChange={(e) => onChange('email', e.target.value)}
-      />
-
-      <TextInput
-        icon={<BadgeOutlinedIcon fontSize="small" />}
-        label="Matrícula"
-        autoComplete="off"
-        required
-        value={data.matricula}
-        onChange={(e) => onChange('matricula', e.target.value)}
       />
 
       <PasswordField

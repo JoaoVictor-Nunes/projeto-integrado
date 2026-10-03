@@ -8,10 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-;
+
 
 @RestControllerAdvice
 public class GlobalExceptioHandler {
@@ -20,12 +22,23 @@ public class GlobalExceptioHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
-        return problem(HttpStatus.NOT_FOUND, "Recuso nao encontrado", ex.getMessage());
+        return problem(HttpStatus.NOT_FOUND, "Recurso não encontrado", ex.getMessage());
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ProblemDetail handleDuplicate(DuplicateResourceException ex) {
         return problem(HttpStatus.CONFLICT, "Recurso duplicado", ex.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleBadCredentials(BadCredentialsException ex) {
+        // Mensagem genérica de propósito: não revela se o e-mail existe ou não.
+        return problem(HttpStatus.UNAUTHORIZED, "Falha na autenticação", "E-mail ou senha inválidos.");
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ProblemDetail handleDisabled(DisabledException ex) {
+        return problem(HttpStatus.UNAUTHORIZED, "Usuário inativo", "Esta conta está desativada.");
     }
 
     @ExceptionHandler(BusinessRuleException.class)
@@ -58,5 +71,6 @@ public class GlobalExceptioHandler {
         pd.setType(URI.create("about:blank"));
         return pd;
     }
+
 
 }

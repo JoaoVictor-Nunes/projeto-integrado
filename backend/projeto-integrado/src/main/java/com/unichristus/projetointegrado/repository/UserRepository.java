@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -17,6 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByMatricula(String matricula);
 
     boolean existsByEmailAndIdNot(String email, Long id);
+
+    Optional<User> findByEmailIgnoreCase(String email);
 
     @Query("""
             select u from User u

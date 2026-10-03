@@ -29,6 +29,31 @@ import java.util.regex.Pattern;
 @Transactional(readOnly = true)
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private static final java.security.SecureRandom RANDOM = new java.security.SecureRandom();
+
+    private String gerarMatriculaUnica(TipoPerfil perfil) {
+        String prefixo = switch (perfil) {
+            case ALUNO -> "ALU";
+            case PROFESSOR -> "PRO";
+            case ADMIN -> "ADM";
+        };
+        String ano = String.valueOf(java.time.LocalDate.now().getYear());
+
+        String candidata;
+        int tentativas = 0;
+        do {
+            if (++tentativas > 10) {
+                // Praticamente impossível com 1 milhão de combinações por ano,
+                // mas evita loop infinito em caso de bug ou volume anômalo.
+                throw new IllegalStateException("Não foi possível gerar uma matrícula única.");
+            }
+            String sufixo = String.format("%06d", RANDOM.nextInt(1_000_000));
+            candidata = prefixo + ano + sufixo;
+        } while (repository.existsByMatricula(candidata));
+
+        return candidata;
+    }
+
 
     private static final int TAMANHO_MINIMO_SENHA = 8;
     private static final Pattern MAIUSCULA = Pattern.compile("\\p{Lu}");
@@ -46,7 +71,7 @@ public class UserService {
     @Transactional
     public UserResponseDTO cadastrarUsuario(UserCreateDTO dto) {
         String email = normalizarEmail(dto.getEmail());
-        String matricula = dto.getMatricula().trim();
+        String matricula = gerarMatriculaUnica(dto.getPerfil());
 
         validarSenha(dto.getSenha());
         validarUnicidade(email, matricula);
@@ -117,9 +142,6 @@ public class UserService {
     private void validarUnicidade(String email, String matricula) {
         if(repository.existsByEmail(email)) {
             throw new DuplicateResourceException("Email ja cadastrado: " + email);
-        }
-        if (repository.existsByMatricula(matricula)){
-            throw new DuplicateResourceException("Matricula ja cadastrada: " + matricula);
         }
     }
     private void validarSenha(String senha) {
