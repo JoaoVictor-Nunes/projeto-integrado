@@ -13,6 +13,7 @@ import PageNotFound from "@/pages/PageNotFound/PageNotFound";
 import Auditoria from "@/pages/admin/Auditoria/Auditoria";
 
 import RotasProtegidas from "./RotasProtegidas";
+import MeusLivros from "@/pages/UserPadrao/meus-livros/MeusLivros";
 
 export const AppRoutes = () => {
   return (
@@ -30,6 +31,7 @@ export const AppRoutes = () => {
         <Route path="/historico" element={<Historico />} />
         <Route path="/materiais" element={<Material />} />
         <Route path="/perfil" element={<PerfilUsuario />} />
+        <Route path="/meus-livros" element={< MeusLivros />} />
       </Route>
 
       {/* Rotas Protegidas - Apenas Administrador */}
