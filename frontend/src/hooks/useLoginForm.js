@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from './useAuth';
 import { useAttemptLock } from './useAttemptLock';
+import { authService } from '@/services/auth.service';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -18,6 +19,9 @@ export const useLoginForm = (onSuccess) => {
   });
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotCode, setForgotCode] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -26,9 +30,10 @@ export const useLoginForm = (onSuccess) => {
   const [registerMessage, setRegisterMessage] = useState('');
   const [forgotMessage, setForgotMessage] = useState('');
   const [codeMessage, setCodeMessage] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
 
   const loginLock = useAttemptLock();
-  const codeLock = useAttemptLock();
+  const codeLock = useAttemptLock(false);
 
   const updateLoginField = (field, value) =>
     setLoginData((prev) => ({ ...prev, [field]: value }));
@@ -116,17 +121,34 @@ export const useLoginForm = (onSuccess) => {
     }
   };
 
-  const submitForgotEmail = (e, onSent) => {
+  const submitForgotEmail = async (e, onSent) => {
     e.preventDefault();
-    if (!EMAIL_REGEX.test(forgotEmail.trim())) {
+    const email = forgotEmail.trim();
+
+    if (!EMAIL_REGEX.test(email)) {
       setForgotMessage('Informe um e-mail válido.');
       return;
     }
+
     setForgotMessage('');
-    onSent?.();
+    setResetToken('');
+    setResetMessage('');
+    setLoading(true);
+
+    try {
+      await authService.requestPasswordResetCode(email);
+      onSent?.();
+    } catch (err) {
+      setForgotMessage(
+        err.response?.data?.detail ||
+        'Não foi possível enviar o código. Tente novamente.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const submitForgotCode = (e, onVerified) => {
+  const submitForgotCode = async (e, onVerified) => {
     e.preventDefault();
     if (codeLock.isLocked) return;
 
@@ -138,8 +160,59 @@ export const useLoginForm = (onSuccess) => {
     }
 
     setCodeMessage('');
-    codeLock.reset();
-    onVerified?.();
+    setLoading(true);
+
+    try {
+      const { resetToken: token } = await authService.verifyPasswordResetCode(forgotEmail.trim(), cleanCode);
+      setResetToken(token);
+      codeLock.reset();
+      onVerified?.();
+    } catch (err) {
+      codeLock.registerFailure();
+      setCodeMessage(
+        err.response?.data?.detail ||
+        'Código inválido ou expirado.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitResetPassword = async (e, onSuccess) => {
+    e.preventDefault();
+
+    if (newPassword.length < 8) {
+      setResetMessage('A senha precisa ter ao menos 8 caracteres.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setResetMessage('As senhas não coincidem.');
+      return;
+    }
+
+    setResetMessage('');
+    setLoading(true);
+
+    try {
+      await authService.resetPassword({
+        email: forgotEmail.trim(),
+        resetToken,
+        newPassword,
+      });
+
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setForgotCode('');
+      setResetToken('');
+      onSuccess?.();
+    } catch (err) {
+      setResetMessage(
+        err.response?.data?.detail ||
+        'Não foi possível alterar a senha. Solicite um novo código.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
@@ -151,6 +224,11 @@ export const useLoginForm = (onSuccess) => {
     setForgotEmail,
     forgotCode,
     setForgotCode,
+    resetToken,
+    newPassword,
+    setNewPassword,
+    confirmNewPassword,
+    setConfirmNewPassword,
     loading,
     errorMessage,
     setErrorMessage,
@@ -158,11 +236,13 @@ export const useLoginForm = (onSuccess) => {
     registerMessage,
     forgotMessage,
     codeMessage,
+    resetMessage,
     loginLock,
     codeLock,
     submitLogin,
     submitRegister,
     submitForgotEmail,
     submitForgotCode,
+    submitResetPassword,
   };
 };

@@ -7,6 +7,7 @@ import { LoginFields } from './forms/LoginFields';
 import { RegisterFields } from './forms/RegisterFields';
 import { ForgotPasswordFields } from './forms/ForgotPasswordFields';
 import { ForgotCodeFields } from './forms/ForgotCodeFields';
+import { ResetPasswordFields } from './forms/ResetPasswordFields';
 import { wrapperSx, authCardSx, formPaneSx } from '@/styles/LoginForm.styles';
 
 
@@ -29,12 +30,18 @@ export const AuthForm = () => {
     registerMessage,
     forgotMessage,
     codeMessage,
+    resetMessage,
+    newPassword,
+    setNewPassword,
+    confirmNewPassword,
+    setConfirmNewPassword,
     loginLock,
     codeLock,
     submitLogin,
     submitRegister,
     submitForgotEmail,
     submitForgotCode,
+    submitResetPassword,
   } = useLoginForm((user) => {
     navigate(user?.tipoPerfil === 'ADMIN' ? '/admin/dashboard' : '/home');
   });
@@ -88,6 +95,7 @@ export const AuthForm = () => {
             email={forgotEmail}
             onEmailChange={setForgotEmail}
             message={forgotMessage}
+            loading={loading}
             onSubmit={(e) => submitForgotEmail(e, () => changeMode('forgot-code'))}
             onBack={() => changeMode('login')}
           />
@@ -102,10 +110,28 @@ export const AuthForm = () => {
             code={forgotCode}
             onCodeChange={setForgotCode}
             message={codeMessage}
-            onSubmit={(e) => submitForgotCode(e, () => changeMode('login'))}
+            onSubmit={(e) => submitForgotCode(e, () => changeMode('reset-password'))}
             onBack={() => changeMode('forgot')}
             isLocked={codeLock.isLocked}
             timerText={codeLock.timerText}
+            loading={loading}
+          />
+        </Box>
+
+        <Box
+          component="section"
+          data-form-pane
+          sx={formPaneSx('right', isPaneVisible('reset-password'))}
+        >
+          <ResetPasswordFields
+            password={newPassword}
+            confirmPassword={confirmNewPassword}
+            onPasswordChange={setNewPassword}
+            onConfirmPasswordChange={setConfirmNewPassword}
+            message={resetMessage}
+            onSubmit={(e) => submitResetPassword(e, () => changeMode('login'))}
+            onBack={() => changeMode('forgot')}
+            loading={loading}
           />
         </Box>
 

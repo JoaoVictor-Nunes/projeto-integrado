@@ -55,6 +55,26 @@ export const authService = {
     return { success: true, usuario: response.data };
   },
 
+  /** Solicita ao backend o envio do código de recuperação por e-mail. */
+  async requestPasswordResetCode(email) {
+    await api.post("/auth/forgot-password", { email });
+  },
+
+  /** Valida o código de recuperação enviado por e-mail. */
+  async verifyPasswordResetCode(email, code) {
+    const response = await api.post("/auth/verify-reset-code", { email, code });
+    return response.data;
+  },
+
+  /** Altera a senha após a validação do código de recuperação. */
+  async resetPassword({ email, resetToken, newPassword }) {
+    await api.post("/auth/reset-password", {
+      email,
+      resetToken,
+      novaSenha: newPassword,
+    });
+  },
+
   /** Encerra a sessão local (o backend não guarda estado de sessão). */
   logout() {
     sessionStorage.removeItem("token");
