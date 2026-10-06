@@ -34,6 +34,9 @@ export const useLoginForm = (onSuccess) => {
 
   const loginLock = useAttemptLock();
   const codeLock = useAttemptLock(false);
+  const registerCodeLock = useAttemptLock(false);
+
+  const [registerCode, setRegisterCode] = useState('');
 
   const updateLoginField = (field, value) =>
     setLoginData((prev) => ({ ...prev, [field]: value }));
@@ -83,7 +86,7 @@ export const useLoginForm = (onSuccess) => {
     }
   };
 
-  const submitRegister = async (e, onRegisterSuccess) => {
+  const submitRegister = async (e, onCodeSent) => {
     e.preventDefault();
 
     const validationError = validateRegister();
@@ -92,30 +95,58 @@ export const useLoginForm = (onSuccess) => {
       return;
     }
     setRegisterMessage('');
-
     setLoading(true);
+
     try {
-      const usuarioCriado = await register({
+      await authService.requestRegisterCode({
         nome: registerData.nome.trim(),
         email: registerData.email.trim(),
-        password: registerData.senha,
-        tipoPerfil: registerData.tipoPerfil,
+        senha: registerData.senha,
+        perfil: registerData.tipoPerfil,
       });
-
-      // A matrícula foi gerada pelo backend; exibe para o usuário guardar.
-      if (usuarioCriado?.matricula) {
-        setRegisterMessage(`Cadastro realizado! Sua matrícula é ${usuarioCriado.matricula}.`);
-      }
-
-      onRegisterSuccess?.();
+      setRegisterCode('');
+      registerCodeLock.reset();
+      onCodeSent?.();
     } catch (err) {
-      // O backend responde no formato Problem Details: a mensagem vem em "detail",
-      // e erros de validação por campo vêm em "erros".
       const data = err.response?.data;
       const mensagem = data?.erros
         ? Object.values(data.erros).join(' | ')
-        : data?.detail || 'Erro ao realizar cadastro.';
+        : data?.detail || 'Não foi possível enviar o código. Tente novamente.';
       setRegisterMessage(mensagem);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitRegisterCode = async (e, onSuccess) => {
+    e.preventDefault();
+    if (registerCodeLock.isLocked) return;
+
+    const cleanCode = registerCode.replace(/\D/g, '');
+    if (!/^[0-9]{6}$/.test(cleanCode)) {
+      setRegisterMessage('Digite o código de 6 dígitos enviado para seu e-mail.');
+      registerCodeLock.registerFailure();
+      return;
+    }
+
+    setRegisterMessage('');
+    setLoading(true);
+    try {
+      await authService.verifyRegisterCode(registerData.email.trim(), cleanCode);
+
+      // Após confirmar o e-mail, autentica o usuário automaticamente.
+      // Assim, ele entra no sistema sem precisar voltar para a tela de login.
+      const user = await login({
+        email: registerData.email.trim(),
+        password: registerData.senha,
+      });
+
+      registerCodeLock.reset();
+      setRegisterMessage('');
+      onSuccess?.(user);
+    } catch (err) {
+      registerCodeLock.registerFailure();
+      setRegisterMessage(err.response?.data?.detail || 'Código inválido ou expirado.');
     } finally {
       setLoading(false);
     }
@@ -220,6 +251,8 @@ export const useLoginForm = (onSuccess) => {
     updateLoginField,
     registerData,
     updateRegisterField,
+    registerCode,
+    setRegisterCode,
     forgotEmail,
     setForgotEmail,
     forgotCode,
@@ -234,6 +267,7 @@ export const useLoginForm = (onSuccess) => {
     setErrorMessage,
     loginMessage,
     registerMessage,
+    registerCodeLock,
     forgotMessage,
     codeMessage,
     resetMessage,
@@ -241,6 +275,7 @@ export const useLoginForm = (onSuccess) => {
     codeLock,
     submitLogin,
     submitRegister,
+    submitRegisterCode,
     submitForgotEmail,
     submitForgotCode,
     submitResetPassword,

@@ -8,6 +8,7 @@ import { RegisterFields } from './forms/RegisterFields';
 import { ForgotPasswordFields } from './forms/ForgotPasswordFields';
 import { ForgotCodeFields } from './forms/ForgotCodeFields';
 import { ResetPasswordFields } from './forms/ResetPasswordFields';
+import { RegisterCodeFields } from './forms/RegisterCodeFields';
 import { wrapperSx, authCardSx, formPaneSx } from '@/styles/LoginForm.styles';
 
 
@@ -28,6 +29,9 @@ export const AuthForm = () => {
     setErrorMessage,
     loginMessage,
     registerMessage,
+    registerCode,
+    setRegisterCode,
+    registerCodeLock,
     forgotMessage,
     codeMessage,
     resetMessage,
@@ -39,6 +43,7 @@ export const AuthForm = () => {
     codeLock,
     submitLogin,
     submitRegister,
+    submitRegisterCode,
     submitForgotEmail,
     submitForgotCode,
     submitResetPassword,
@@ -63,7 +68,7 @@ export const AuthForm = () => {
             onChange={updateRegisterField}
             message={registerMessage || errorMessage}
             loading={loading}
-            onSubmit={(e) => submitRegister(e, () => changeMode('login'))}
+            onSubmit={(e) => submitRegister(e, () => changeMode('register-code'))}
           />
         </Box>
 
@@ -89,7 +94,24 @@ export const AuthForm = () => {
         <Box
           component="section"
           data-form-pane
-          sx={formPaneSx('right', isPaneVisible('forgot'))}
+          sx={formPaneSx('left', isPaneVisible('register-code'))}
+        >
+          <RegisterCodeFields
+            code={registerCode}
+            onCodeChange={setRegisterCode}
+            message={registerMessage}
+            onSubmit={(e) => submitRegisterCode(e, () => changeMode('login'))}
+            onBack={() => changeMode('register')}
+            isLocked={registerCodeLock.isLocked}
+            timerText={registerCodeLock.timerText}
+            loading={loading}
+          />
+        </Box>
+
+        <Box
+          component="section"
+          data-form-pane
+          sx={formPaneSx('left', isPaneVisible('forgot'))}
         >
           <ForgotPasswordFields
             email={forgotEmail}
@@ -104,7 +126,7 @@ export const AuthForm = () => {
         <Box
           component="section"
           data-form-pane
-          sx={formPaneSx('right', isPaneVisible('forgot-code'))}
+          sx={formPaneSx('left', isPaneVisible('forgot-code'))}
         >
           <ForgotCodeFields
             code={forgotCode}
@@ -121,7 +143,7 @@ export const AuthForm = () => {
         <Box
           component="section"
           data-form-pane
-          sx={formPaneSx('right', isPaneVisible('reset-password'))}
+          sx={formPaneSx('left', isPaneVisible('reset-password'))}
         >
           <ResetPasswordFields
             password={newPassword}
@@ -139,7 +161,7 @@ export const AuthForm = () => {
           heroMode={heroMode}
           isLeaving={isLeaving}
           onChangeMode={changeMode}
-          isFormInRegisterMode={mode === 'register'}
+          isFormInRegisterMode={['register', 'register-code'].includes(mode)}
         />
       </Box>
     </Box>

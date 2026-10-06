@@ -55,6 +55,17 @@ export const authService = {
     return { success: true, usuario: response.data };
   },
 
+  /** Solicita o código de confirmação de e-mail do cadastro. */
+  async requestRegisterCode({ nome, email, senha, perfil }) {
+    await api.post("/auth/register/request-code", { nome, email, senha, perfil });
+  },
+
+  /** Confirma o código de cadastro e cria a conta. */
+  async verifyRegisterCode(email, code) {
+    const response = await api.post("/auth/register/verify-code", { email, code });
+    return response.data.usuario;
+  },
+
   /** Solicita ao backend o envio do código de recuperação por e-mail. */
   async requestPasswordResetCode(email) {
     await api.post("/auth/forgot-password", { email });
