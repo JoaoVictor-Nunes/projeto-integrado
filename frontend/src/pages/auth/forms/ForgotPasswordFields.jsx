@@ -3,7 +3,7 @@ import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import { TextInput } from '@/components/TextInput'
 import { formTitleSx, formLeadSx, formGridSx, errorMsgSx, primaryButtonSx, linkButtonSx } from '@/styles/LoginForm.styles';
 
-export const ForgotPasswordFields = ({ email, onEmailChange, message, onSubmit, onBack }) => (
+export const ForgotPasswordFields = ({ email, onEmailChange, message, onSubmit, onBack, loading }) => (
   <>
     <Typography variant="h1" sx={formTitleSx}>Esqueci minha senha</Typography>
     <Typography sx={formLeadSx}>
@@ -23,8 +23,8 @@ export const ForgotPasswordFields = ({ email, onEmailChange, message, onSubmit, 
 
       <Typography role="alert" sx={errorMsgSx}>{message}</Typography>
 
-      <Button type="submit" variant="contained" sx={primaryButtonSx}>
-        Enviar código
+      <Button type="submit" variant="contained" sx={primaryButtonSx} disabled={loading}>
+        {loading ? 'Enviando...' : 'Enviar código'}
       </Button>
       <Button type="button" sx={linkButtonSx} onClick={onBack}>
         Voltar para entrar

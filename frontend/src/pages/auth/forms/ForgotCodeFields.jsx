@@ -19,11 +19,12 @@ export const ForgotCodeFields = ({
   onBack,
   isLocked,
   timerText,
+  loading,
 }) => (
   <>
     <Typography variant="h1" sx={formTitleSx}>Digite o código</Typography>
     <Typography sx={formLeadSx}>
-      Digite o código que enviamos para o seu e-mail. Você terá 5 tentativas.
+      Caso o e-mail informado esteja cadastrado, um código de verificação foi enviado para ele.
     </Typography>
 
     <Box component="form" onSubmit={onSubmit} noValidate sx={formGridSx}>
@@ -41,8 +42,8 @@ export const ForgotCodeFields = ({
         {timerText}
       </Typography>
 
-      <Button type="submit" variant="contained" sx={primaryButtonSx} disabled={isLocked}>
-        Continuar
+      <Button type="submit" variant="contained" sx={primaryButtonSx} disabled={isLocked || loading}>
+        {loading ? 'Verificando...' : 'Continuar'}
       </Button>
       <Button type="button" sx={linkButtonSx} onClick={onBack}>
         Voltar

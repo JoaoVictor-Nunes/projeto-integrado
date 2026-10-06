@@ -1,12 +1,17 @@
 package com.unichristus.projetointegrado.controller;
 
 import com.unichristus.projetointegrado.domain.dto.LoginRequestDTO;
+import com.unichristus.projetointegrado.domain.dto.auth.ForgotPasswordRequestDTO;
+import com.unichristus.projetointegrado.domain.dto.auth.VerifyResetCodeRequestDTO;
+import com.unichristus.projetointegrado.domain.dto.auth.VerifyResetCodeResponseDTO;
+import com.unichristus.projetointegrado.domain.dto.auth.ResetPasswordRequestDTO;
 import com.unichristus.projetointegrado.domain.dto.LoginResponseDTO;
 import com.unichristus.projetointegrado.domain.dto.RefreshTokenRequestDTO;
 import com.unichristus.projetointegrado.domain.dto.user.UserResponseDTO;
 import com.unichristus.projetointegrado.security.JwtService;
 import com.unichristus.projetointegrado.security.UserDetailsImpl;
 import com.unichristus.projetointegrado.security.UserDetailsServiceImpl;
+import com.unichristus.projetointegrado.service.PasswordResetService;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -29,13 +34,16 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtService jwtService;
+    private final PasswordResetService passwordResetService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           UserDetailsServiceImpl userDetailsService,
-                          JwtService jwtService) {
+                          JwtService jwtService,
+                          PasswordResetService passwordResetService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
+        this.passwordResetService = passwordResetService;
     }
 
     /**
@@ -59,6 +67,36 @@ public class AuthController {
                 user.getMatricula(), user.getPerfil(), user.getStatusAtivo());
 
         return ResponseEntity.ok(new LoginResponseDTO(accessToken, refreshToken, userResponse));
+    }
+
+    /**
+     * POST /auth/forgot-password
+     * Gera e envia por e-mail um código temporário de recuperação.
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO dto) {
+        passwordResetService.solicitarCodigo(dto.email());
+        return ResponseEntity.accepted().build();
+    }
+
+    /**
+     * POST /auth/verify-reset-code
+     * Valida o código enviado por e-mail e o invalida após o uso.
+     */
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<VerifyResetCodeResponseDTO> verifyResetCode(@Valid @RequestBody VerifyResetCodeRequestDTO dto) {
+        String resetToken = passwordResetService.verificarCodigo(dto.email(), dto.code());
+        return ResponseEntity.ok(new VerifyResetCodeResponseDTO(resetToken));
+    }
+
+    /**
+     * POST /auth/reset-password
+     * Altera a senha após a validação do código de recuperação.
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO dto) {
+        passwordResetService.redefinirSenha(dto.email(), dto.resetToken(), dto.novaSenha());
+        return ResponseEntity.noContent().build();
     }
 
     /**

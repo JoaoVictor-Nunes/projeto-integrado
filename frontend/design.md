@@ -346,3 +346,12 @@ A barra de busca deve ser robusta, permitindo pesquisa instantânea com filtros 
 O arquivo `design.md` foi gerado e documenta o ecossistema visual do **SIBV**, mantendo a cor `#2A9D8F` como âncora, integrando a tipografia Poppins e replicando as dinâmicas de foco e botões presentes na tela de autenticação.
 
 ```
+## 8. Regra para novas funcionalidades
+
+Novas funcionalidades não devem alterar a identidade visual existente sem necessidade.
+Quando uma funcionalidade exigir uma nova tela, campo, botão, mensagem ou estado visual,
+ela deve reutilizar os componentes existentes e seguir os tokens, tipografia, espaçamentos,
+raios, sombras, estados de foco e animações definidos neste documento.
+
+A lógica deve permanecer separada da apresentação: componentes reutilizáveis e hooks/serviços
+para comportamento, sem duplicação de estilos ou regras de negócio dentro das telas.

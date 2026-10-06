@@ -8,7 +8,7 @@ const LOCK_DURATION_MS = 60000;
  * Antes essa lógica estava duplicada manualmente para o login e para o
  * código de recuperação — agora os dois usam o mesmo hook.
  */
-export const useAttemptLock = () => {
+export const useAttemptLock = (showAttemptCount = true) => {
   const [attempts, setAttempts] = useState(0);
   const [lockedUntil, setLockedUntil] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
@@ -42,7 +42,7 @@ export const useAttemptLock = () => {
       }, 1000);
     } else {
       setAttempts(next);
-      setTimerText(`Tentativa ${next} de ${MAX_ATTEMPTS}.`);
+      setTimerText(showAttemptCount ? `Tentativa ${next} de ${MAX_ATTEMPTS}.` : '');
     }
   };
 
