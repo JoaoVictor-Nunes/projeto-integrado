@@ -22,7 +22,7 @@ export const useAuthModeTransition = (onModeChange) => {
     setIsLeaving(true);
     setMode(newMode);
 
-    const heroTarget = ['forgot-code', 'reset-password'].includes(newMode) ? 'forgot' : newMode;
+    const heroTarget = ['forgot-code', 'reset-password'].includes(newMode) ? 'forgot' : ['register-code'].includes(newMode) ? 'register' : newMode;
 
     setTimeout(() => {
       setHeroMode(heroTarget);

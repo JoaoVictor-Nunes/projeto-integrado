@@ -95,6 +95,30 @@ public class UserService {
     }
 
     @Transactional
+    public UserResponseDTO cadastrarUsuarioVerificado(String nome, String email, TipoPerfil perfil, String senhaHash) {
+        String normalizedEmail = normalizarEmail(email);
+        String matricula = gerarMatriculaUnica(perfil);
+        validarUnicidade(normalizedEmail, matricula);
+
+        User user = new User();
+        user.setNome(nome.trim());
+        user.setEmail(normalizedEmail);
+        user.setMatricula(matricula);
+        user.setSenhaHash(senhaHash);
+        user.setPerfil(perfil);
+        user.setStatusAtivo(Boolean.TRUE);
+        user.setDataCriacao(LocalDateTime.now());
+
+        try {
+            User salvo = repository.saveAndFlush(user);
+            log.info("Usuario {} cadastrado apos confirmacao de e-mail", salvo.getId());
+            return toResponse(salvo);
+        } catch (DataIntegrityViolationException ex) {
+            throw new DuplicateResourceException("Email ou matricula ja cadastrado.");
+        }
+    }
+
+    @Transactional
     public UserResponseDTO atualizarUsuario(Long id, UserUpdateDTO dto) {
         User user = buscarEntidade(id);
         String novoEmail = normalizarEmail(dto.getEmail());
