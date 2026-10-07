@@ -14,6 +14,7 @@ import Auditoria from "@/pages/admin/Auditoria/Auditoria";
 
 import RotasProtegidas from "./RotasProtegidas";
 import MeusLivros from "@/pages/UserPadrao/meus-livros/MeusLivros";
+import Acervo from "@/pages/Acervo";
 
 export const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ export const AppRoutes = () => {
       {/* Rotas Públicas */}
       <Route path="/login" element={<Auth />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/acervo" element={<Acervo/>} />
 
       {/* Rotas Protegidas - Usuário / Aluno / Professor */}
       <Route element={<RotasProtegidas />}>

@@ -1,25 +1,41 @@
 import { createTheme } from '@mui/material/styles';
+import { colors, shadows, radius } from './tokens';
 
+/**
+ * Tema do MUI construído em cima de tokens.js (fonte única da verdade
+ * das cores/raios/sombras do SIBV). Qualquer ajuste de paleta deve ser
+ * feito em tokens.js, nunca aqui, para não haver duas fontes divergentes.
+ */
 export const theme = createTheme({
   palette: {
     primary: {
-      main: '#2A9D8F',
-      dark: '#0F5F59',
-      contrastText: '#FFFFFF',
+      main: colors.tealPrimary,
+      dark: colors.tealDeep,
+      light: colors.tealSoft,
+      contrastText: colors.white,
     },
     secondary: {
-      main: '#1B7F76',
+      main: colors.tealMid,
     },
     background: {
-      default: '#E8F1F0',
-      paper: '#FFFFFF',
+      default: colors.tealSurface,
+      paper: colors.white,
     },
     text: {
-      primary: '#16403C',
-      secondary: '#6B7C7A',
+      primary: colors.ink,
+      secondary: colors.muted,
     },
     error: {
-      main: '#C0392B',
+      main: colors.danger,
+    },
+    warning: {
+      main: colors.warning,
+    },
+    info: {
+      main: colors.info,
+    },
+    success: {
+      main: colors.success,
     },
   },
   typography: {
@@ -30,6 +46,14 @@ export const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 10,
+    borderRadius: parseInt(radius.field, 10), // 10, igual ao valor original
+  },
+  // Tokens sem "slot" nativo no MUI (sombras institucionais, raio de
+  // cards, tons intermediários como --teal-ghost). Acesse em qualquer
+  // componente com: const theme = useTheme(); theme.tokens.colors.tealGhost
+  tokens: {
+    colors,
+    shadows,
+    radius,
   },
 });
