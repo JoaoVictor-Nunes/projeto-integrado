@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "@/api/api";
 
 
 /** Cadastra um novo usuário. Lança erro em caso de 409/422/400. */
@@ -30,4 +30,14 @@ export async function atualizarUsuario(id, { nome, email }) {
 /** Desativa (exclusão lógica) um usuário. Não retorna corpo (204). */
 export async function desativarUsuario(id) {
   await api.delete(`/users/${id}`);
+}
+
+/**
+ * Altera a senha do usuário autenticado.
+ * ATENÇÃO: ajuste o endpoint/payload abaixo para o que o seu backend expõe.
+ * O backend deve responder 400/422 (e não 401) quando a senha atual estiver
+ * errada, senão o interceptor do axios interpreta como sessão expirada.
+ */
+export async function alterarSenha(id, { senhaAtual, novaSenha }) {
+  await api.put(`/users/${id}/senha`, { senhaAtual, novaSenha });
 }
