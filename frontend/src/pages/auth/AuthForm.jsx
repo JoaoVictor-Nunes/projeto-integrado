@@ -111,7 +111,7 @@ export const AuthForm = () => {
         <Box
           component="section"
           data-form-pane
-          sx={formPaneSx('left', isPaneVisible('forgot'))}
+          sx={formPaneSx('right', isPaneVisible('forgot'))}
         >
           <ForgotPasswordFields
             email={forgotEmail}
@@ -126,7 +126,7 @@ export const AuthForm = () => {
         <Box
           component="section"
           data-form-pane
-          sx={formPaneSx('left', isPaneVisible('forgot-code'))}
+          sx={formPaneSx('right', isPaneVisible('forgot-code'))}
         >
           <ForgotCodeFields
             code={forgotCode}
@@ -143,7 +143,7 @@ export const AuthForm = () => {
         <Box
           component="section"
           data-form-pane
-          sx={formPaneSx('left', isPaneVisible('reset-password'))}
+          sx={formPaneSx('right', isPaneVisible('reset-password'))}
         >
           <ResetPasswordFields
             password={newPassword}

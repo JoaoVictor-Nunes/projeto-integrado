@@ -1,5 +1,4 @@
-import api from "./api";
-
+import api from "../api/api";
 
 /** Cadastra um novo usuário. Lança erro em caso de 409/422/400. */
 export async function cadastrarUsuario({ nome, email, matricula, senha, perfil }) {
