@@ -31,6 +31,8 @@ public class SecurityConfig {
                         // os demais endpoints de /auth são públicos (login, refresh).
                         .requestMatchers("/api/auth/me").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Estas duas agem sobre o usuário do token: precisam vir ANTES do permitAll abaixo.
+                        .requestMatchers("/api/users/logout", "/api/users/senha").authenticated()
                         .requestMatchers("/api/users", "/api/users/**").permitAll() // ver ATENÇÃO acima
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

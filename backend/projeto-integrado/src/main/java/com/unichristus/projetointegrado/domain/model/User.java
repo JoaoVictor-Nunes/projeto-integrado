@@ -38,4 +38,11 @@ public class User {
 
     @Column(nullable = false)
     private LocalDateTime dataCriacao;
+
+    /**
+     * SHA-256 (hex) do refresh token vigente. Nulo = sem sessão ativa
+     * (nunca logou ou já fez logout). Guarda-se o hash, nunca o token.
+     */
+    @Column(name = "refresh_token_hash", length = 64)
+    private String refreshTokenHash;
 }
