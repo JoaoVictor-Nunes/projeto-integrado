@@ -19,8 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -57,8 +61,8 @@ public class UserService {
 
     private static final int TAMANHO_MINIMO_SENHA = 8;
     private static final Pattern MAIUSCULA = Pattern.compile("\\p{Lu}");
-    private static final Pattern MINUSCULA = Pattern.compile("\\p{L1}");
-    private static final Pattern ESPECIAL = Pattern.compile("[^\\\\p{L}\\\\p{N}\\\\s]");
+    private static final Pattern MINUSCULA = Pattern.compile("\\p{Ll}");
+    private static final Pattern ESPECIAL = Pattern.compile("[^\\p{L}\\p{N}\\s]");
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
@@ -155,6 +159,74 @@ public class UserService {
             user.setStatusAtivo(Boolean.FALSE);
             repository.save(user);
             log.info("Usuario desativado");
+        }
+    }
+
+    /**
+     * Guarda o hash do refresh token emitido (no login e a cada renovação).
+     * Só existe um refresh token válido por usuário: um novo substitui o anterior.
+     */
+    @Transactional
+    public void registrarRefreshToken(String email, String refreshToken) {
+        User user = buscarPorEmail(email);
+        user.setRefreshTokenHash(hashToken(refreshToken));
+        repository.save(user);
+    }
+
+    /** O refresh token recebido é exatamente o último emitido para este usuário? */
+    public boolean refreshTokenValido(String email, String refreshToken) {
+        return repository.findByEmailIgnoreCase(email)
+                .map(User::getRefreshTokenHash)
+                .map(salvo -> MessageDigest.isEqual(
+                        salvo.getBytes(StandardCharsets.UTF_8),
+                        hashToken(refreshToken).getBytes(StandardCharsets.UTF_8)))
+                .orElse(false);
+    }
+
+    /**
+     * Logout: remove o refresh token guardado. Depois disso o usuário não
+     * consegue mais renovar o access token (o atual vale até expirar).
+     */
+    @Transactional
+    public void logout(String email) {
+        User user = buscarPorEmail(email);
+        if (user.getRefreshTokenHash() != null) {
+            user.setRefreshTokenHash(null);
+            repository.save(user);
+        }
+        log.info("Logout do usuario {}", user.getId());
+    }
+
+    /** Troca a senha do usuário autenticado, exigindo a senha atual. */
+    @Transactional
+    public void alterarSenha(String email, String senhaAtual, String novaSenha) {
+        User user = buscarPorEmail(email);
+
+        if (!passwordEncoder.matches(senhaAtual, user.getSenhaHash())) {
+            throw new InvalidPasswordException("Senha atual incorreta.");
+        }
+        if (passwordEncoder.matches(novaSenha, user.getSenhaHash())) {
+            throw new InvalidPasswordException("A nova senha deve ser diferente da atual.");
+        }
+        validarSenha(novaSenha);
+
+        user.setSenhaHash(passwordEncoder.encode(novaSenha));
+        repository.save(user);
+        log.info("Senha alterada pelo usuario {}", user.getId());
+    }
+
+    private User buscarPorEmail(String email) {
+        return repository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
+    }
+
+    private static String hashToken(String token) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256")
+                    .digest(token.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest);
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IllegalStateException("SHA-256 indisponível", ex);
         }
     }
 

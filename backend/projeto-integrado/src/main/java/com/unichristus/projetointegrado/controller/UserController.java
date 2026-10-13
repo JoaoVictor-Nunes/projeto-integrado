@@ -3,6 +3,7 @@ package com.unichristus.projetointegrado.controller;
 import java.net.URI;
 
 
+import com.unichristus.projetointegrado.domain.dto.user.UserChangePasswordDTO;
 import com.unichristus.projetointegrado.domain.dto.user.UserCreateDTO;
 import com.unichristus.projetointegrado.domain.dto.user.UserResponseDTO;
 import com.unichristus.projetointegrado.domain.dto.user.UserUpdateDTO;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,6 +65,29 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> atualizar(@PathVariable Long id,
                                                      @Valid @RequestBody UserUpdateDTO dto) {
         return ResponseEntity.ok(service.atualizarUsuario(id, dto));
+    }
+
+    /**
+     * DELETE /api/users/logout
+     * Encerra a sessão do usuário autenticado removendo o refresh token guardado.
+     * O usuário vem do token (Authorization), nunca do corpo da requisição.
+     */
+    @DeleteMapping("/logout")
+    public ResponseEntity<Void> logout(Authentication authentication) {
+        service.logout(authentication.getName());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * PUT /api/users/senha
+     * Troca a senha do usuário autenticado. Senha atual incorreta responde 422
+     * (e não 401) para o front não confundir com sessão expirada.
+     */
+    @PutMapping("/senha")
+    public ResponseEntity<Void> alterarSenha(Authentication authentication,
+                                             @Valid @RequestBody UserChangePasswordDTO dto) {
+        service.alterarSenha(authentication.getName(), dto.senhaAtual(), dto.novaSenha());
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

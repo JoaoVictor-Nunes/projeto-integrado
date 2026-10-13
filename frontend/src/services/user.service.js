@@ -33,11 +33,18 @@ export async function desativarUsuario(id) {
 }
 
 /**
- * Altera a senha do usuário autenticado.
- * ATENÇÃO: ajuste o endpoint/payload abaixo para o que o seu backend expõe.
- * O backend deve responder 400/422 (e não 401) quando a senha atual estiver
- * errada, senão o interceptor do axios interpreta como sessão expirada.
+ * Altera a senha do usuário autenticado (PUT /users/senha).
+ * O backend identifica o usuário pelo token e responde 422 se a senha atual
+ * estiver errada ou a nova senha não atender às regras.
  */
-export async function alterarSenha(id, { senhaAtual, novaSenha }) {
-  await api.put(`/users/${id}/senha`, { senhaAtual, novaSenha });
+export async function alterarSenha({ senhaAtual, novaSenha }) {
+  await api.put("/users/senha", { senhaAtual, novaSenha });
+}
+
+/**
+ * Encerra a sessão no servidor (DELETE /users/logout), que descarta o refresh token.
+ * Precisa do token ainda salvo: chame ANTES de limpar o sessionStorage.
+ */
+export async function logoutUsuario() {
+  await api.delete("/users/logout");
 }

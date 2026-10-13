@@ -29,7 +29,10 @@ export const usePerfilForm = (user, refreshUser) => {
 
   const dadosAlterados =
     dados.nome.trim() !== original.nome || dados.email.trim() !== original.email;
-  const senhaPreenchida = Object.values(senhas).some(Boolean);
+  // A troca de senha só é considerada quando "nova" ou "confirmar" são preenchidas.
+  // Ignorar "atual" sozinha evita que o preenchimento automático do navegador
+  // (que costuma preencher a senha salva do login) force a troca de senha.
+  const senhaPreenchida = Boolean(senhas.nova || senhas.confirmar);
   const isDirty = dadosAlterados || senhaPreenchida;
 
   const limparErro = (campo) =>
@@ -84,7 +87,7 @@ export const usePerfilForm = (user, refreshUser) => {
       }
 
       if (senhaPreenchida) {
-        await alterarSenha(user.id, { senhaAtual: senhas.atual, novaSenha: senhas.nova });
+        await alterarSenha({ senhaAtual: senhas.atual, novaSenha: senhas.nova });
         setSenhas(SENHAS_VAZIAS);
       }
 

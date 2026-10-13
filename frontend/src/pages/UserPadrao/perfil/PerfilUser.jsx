@@ -117,7 +117,7 @@ const PerfilUsuario = () => {
               label="Senha atual"
               type="password"
               icon={<VpnKeyOutlinedIcon fontSize="small" />}
-              autoComplete="current-password"
+              autoComplete="new-password"
               value={form.senhas.atual}
               onChange={(e) => form.updateSenha('atual', e.target.value)}
               error={form.erros.atual}
@@ -127,7 +127,7 @@ const PerfilUsuario = () => {
               type="password"
               icon={<VpnKeyOutlinedIcon fontSize="small" />}
               autoComplete="new-password"
-              helperText="Mínimo de 8 caracteres."
+              helperText="Mínimo de 8 caracteres, com maiúscula, minúscula e símbolo."
               value={form.senhas.nova}
               onChange={(e) => form.updateSenha('nova', e.target.value)}
               error={form.erros.nova}
