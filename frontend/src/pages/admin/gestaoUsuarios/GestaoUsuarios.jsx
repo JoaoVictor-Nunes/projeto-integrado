@@ -6,22 +6,23 @@ import {
   TableHead, TableRow, TextField, Tooltip, Typography
 } from "@mui/material";
 
-// Importações diretas dos ícones para evitar falha no Vite
-import Add from "@mui/icons-material/Add";
-import ArrowBack from "@mui/icons-material/ArrowBack";
-import DeleteOutline from "@mui/icons-material/DeleteOutlined";
-import EditOutlined from "@mui/icons-material/EditOutlined";
-import FilterList from "@mui/icons-material/FilterList";
-import Search from "@mui/icons-material/Search";
-import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
-import GroupsOutlined from "@mui/icons-material/GroupsOutlined";
-import SchoolOutlined from "@mui/icons-material/SchoolOutlined";
-import PersonOutline from "@mui/icons-material/PersonOutlined";
-import ShieldOutlined from "@mui/icons-material/ShieldOutlined";
+import { 
+  Add, 
+  ArrowBack, 
+  DeleteOutlined, 
+  EditOutlined, 
+  FilterList, 
+  Search, 
+  VisibilityOutlined, 
+  GroupsOutlined, 
+  SchoolOutlined, 
+  PersonOutlined, 
+  ShieldOutlined } from "@mui/icons-material";
 
 import { useNavigate } from "react-router-dom";
 import Pagination from "@/components/Pagination";
-import { atualizarUsuario, cadastrarUsuario, desativarUsuario, listarUsuarios } from "@/services/user.service";const ROLES = [
+import { atualizarUsuario, cadastrarUsuario, desativarUsuario, listarUsuarios } from "@/services/user.service";
+const ROLES = [
   { value: "ALUNO", label: "Aluno" },
   { value: "PROFESSOR", label: "Professor" },
   { value: "BIBLIOTECARIO", label: "Bibliotecário" },
@@ -139,7 +140,7 @@ export default function GestaoUsuarios() {
         <SummaryCard icon={<GroupsOutlined />} label="Total de usuários" value={pageInfo.totalElements} accent="#2A9D8F" />
         <SummaryCard icon={<ShieldOutlined />} label="Administradores" value={stats.admins} accent="#C0392B" />
         <SummaryCard icon={<SchoolOutlined />} label="Professores" value={stats.teachers} accent="#47866B" />
-        <SummaryCard icon={<PersonOutline />} label="Alunos" value={stats.students} accent="#42658A" />
+        <SummaryCard icon={<PersonOutlined />} label="Alunos" value={stats.students} accent="#42658A" />
       </Box>
 
       <Paper elevation={0} sx={{ overflow: "hidden", border: "1px solid var(--rest-border)", borderRadius: "16px", boxShadow: "var(--shadow-sm)", bgcolor: "var(--white)" }}>
@@ -168,7 +169,7 @@ export default function GestaoUsuarios() {
                 <TableCell><Stack direction="row" spacing={.25}>
                   <Tooltip title="Ver detalhes"><IconButton size="small" onClick={() => setDetailsUser(user)} aria-label={`Ver ${user.nome}`}><VisibilityOutlined fontSize="small" /></IconButton></Tooltip>
                   <Tooltip title="Editar usuário"><IconButton size="small" onClick={() => openEdit(user)} aria-label={`Editar ${user.nome}`}><EditOutlined fontSize="small" /></IconButton></Tooltip>
-                  <Tooltip title={user.statusAtivo === false ? "Usuário inativo" : "Desativar usuário"}><span><IconButton size="small" disabled={user.statusAtivo === false} onClick={() => setConfirmUser(user)} aria-label={`Desativar ${user.nome}`} sx={{ "&:hover": { color: "var(--error)" } }}><DeleteOutline fontSize="small" /></IconButton></span></Tooltip>
+                  <Tooltip title={user.statusAtivo === false ? "Usuário inativo" : "Desativar usuário"}><span><IconButton size="small" disabled={user.statusAtivo === false} onClick={() => setConfirmUser(user)} aria-label={`Desativar ${user.nome}`} sx={{ "&:hover": { color: "var(--error)" } }}><DeleteOutlined fontSize="small" /></IconButton></span></Tooltip>
                 </Stack></TableCell>
               </TableRow>)}
             </TableBody>
