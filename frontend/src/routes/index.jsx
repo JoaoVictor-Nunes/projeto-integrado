@@ -27,6 +27,8 @@ export const AppRoutes = () => {
       <Route path="/login" element={<Auth />} />
       <Route path="/home" element={<LandingPage />} />
       <Route path="/acervo" element={<Acervo/>} />
+      {/* Pré-visualização do perfil, só existe com npm run dev */}
+      {import.meta.env.DEV && <Route path="/perfil-preview" element={<PerfilUsuario />} />}
 
       {/* Rotas Protegidas - Usuário / Aluno / Professor */}
       <Route element={<RotasProtegidas />}>

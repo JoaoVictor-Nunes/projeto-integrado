@@ -16,6 +16,7 @@ import com.unichristus.projetointegrado.security.UserDetailsImpl;
 import com.unichristus.projetointegrado.security.UserDetailsServiceImpl;
 import com.unichristus.projetointegrado.service.PasswordResetService;
 import com.unichristus.projetointegrado.service.RegisterEmailVerificationService;
+import com.unichristus.projetointegrado.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -40,17 +41,20 @@ public class AuthController {
     private final JwtService jwtService;
     private final PasswordResetService passwordResetService;
     private final RegisterEmailVerificationService registerEmailVerificationService;
+    private final UserService userService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           UserDetailsServiceImpl userDetailsService,
                           JwtService jwtService,
                           PasswordResetService passwordResetService,
-                          RegisterEmailVerificationService registerEmailVerificationService) {
+                          RegisterEmailVerificationService registerEmailVerificationService,
+                          UserService userService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
         this.passwordResetService = passwordResetService;
         this.registerEmailVerificationService = registerEmailVerificationService;
+        this.userService = userService;
     }
 
     /**
@@ -68,6 +72,7 @@ public class AuthController {
 
         String accessToken = jwtService.gerarAccessToken(user.getEmail());
         String refreshToken = jwtService.gerarRefreshToken(user.getEmail());
+        userService.registrarRefreshToken(user.getEmail(), refreshToken);
 
         UserResponseDTO userResponse = new UserResponseDTO(
                 user.getId(), user.getNome(), user.getEmail(),
@@ -143,8 +148,14 @@ public class AuthController {
             throw new DisabledException("Usuário inativo.");
         }
 
+        // Só vale o último refresh token emitido; após logout nenhum vale.
+        if (!userService.refreshTokenValido(email, dto.refreshToken())) {
+            throw new BadCredentialsException("Refresh token inválido ou expirado.");
+        }
+
         String novoAccessToken = jwtService.gerarAccessToken(email);
         String novoRefreshToken = jwtService.gerarRefreshToken(email);
+        userService.registrarRefreshToken(email, novoRefreshToken);
 
         return ResponseEntity.ok(new LoginResponseDTO(novoAccessToken, novoRefreshToken, null));
     }

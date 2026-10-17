@@ -30,3 +30,20 @@ export async function atualizarUsuario(id, { nome, email }) {
 export async function desativarUsuario(id) {
   await api.delete(`/users/${id}`);
 }
+
+/**
+ * Altera a senha do usuário autenticado (PUT /users/senha).
+ * O backend identifica o usuário pelo token e responde 422 se a senha atual
+ * estiver errada ou a nova senha não atender às regras.
+ */
+export async function alterarSenha({ senhaAtual, novaSenha }) {
+  await api.put("/users/senha", { senhaAtual, novaSenha });
+}
+
+/**
+ * Encerra a sessão no servidor (DELETE /users/logout), que descarta o refresh token.
+ * Precisa do token ainda salvo: chame ANTES de limpar o sessionStorage.
+ */
+export async function logoutUsuario() {
+  await api.delete("/users/logout");
+}
