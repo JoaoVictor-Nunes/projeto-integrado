@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { authService } from '../services/auth.service';
+import { logoutUsuario } from '../services/user.service';
 import { AUTH_SESSION_EXPIRED_EVENT } from '../constants/auth';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 
@@ -67,10 +68,18 @@ export const AuthProvider = ({ children }) => {
     return await authService.register(userData);
   };
 
-  const logout = () => {
-    sessionStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    setUser(null);
+  const logout = async () => {
+    try {
+      // Pede ao servidor para descartar o refresh token. Se falhar (sem rede,
+      // token já expirado...), a sessão local é encerrada do mesmo jeito.
+      await logoutUsuario();
+    } catch {
+      // ignorado de propósito
+    } finally {
+      sessionStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      setUser(null);
+    }
   };
 
   const refreshUser = async () => {

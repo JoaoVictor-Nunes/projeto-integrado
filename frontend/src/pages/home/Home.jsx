@@ -18,8 +18,8 @@ const Home = () => {
 
   const [searchValue, setSearchValue] = useState('');
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
