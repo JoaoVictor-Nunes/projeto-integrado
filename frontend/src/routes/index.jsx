@@ -11,6 +11,7 @@ import GestaoAcervo from "@/pages/admin/gestaoAcervo/GestaoAcervo";
 import GestaoUsuarios from "@/pages/admin/gestaoUsuarios/GestaoUsuarios";
 import PageNotFound from "@/pages/PageNotFound/PageNotFound";
 import Auditoria from "@/pages/admin/Auditoria/Auditoria";
+import { LandingPage } from "@/pages/landing/LandingHome";
 
 import RotasProtegidas from "./RotasProtegidas";
 import MeusLivros from "@/pages/UserPadrao/meus-livros/MeusLivros";
@@ -24,7 +25,7 @@ export const AppRoutes = () => {
 
       {/* Rotas Públicas */}
       <Route path="/login" element={<Auth />} />
-      <Route path="/home" element={<Home />} />
+      <Route path="/home" element={<LandingPage />} />
       <Route path="/acervo" element={<Acervo/>} />
       {/* Pré-visualização do perfil, só existe com npm run dev */}
       {import.meta.env.DEV && <Route path="/perfil-preview" element={<PerfilUsuario />} />}
