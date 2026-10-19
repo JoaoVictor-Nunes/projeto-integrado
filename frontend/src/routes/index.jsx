@@ -25,10 +25,7 @@ export const AppRoutes = () => {
 
       {/* Rotas Públicas */}
       <Route path="/login" element={<Auth />} />
-      <Route path="/home" element={<LandingPage />} />
-      <Route path="/acervo" element={<Acervo/>} />
-      {/* Pré-visualização do perfil, só existe com npm run dev */}
-      {import.meta.env.DEV && <Route path="/perfil-preview" element={<PerfilUsuario />} />}
+      <Route path="/" element={<LandingPage />} />
 
       {/* Rotas Protegidas - Usuário / Aluno / Professor */}
       <Route element={<RotasProtegidas />}>
@@ -37,6 +34,8 @@ export const AppRoutes = () => {
         <Route path="/materiais" element={<Material />} />
         <Route path="/perfil" element={<PerfilUsuario />} />
         <Route path="/meus-livros" element={< MeusLivros />} />
+        <Route path="/acervo" element={<Acervo/>} />
+        <Route path="/home" element={< Home />} />
       </Route>
 
       {/* Rotas Protegidas - Apenas Administrador */}
