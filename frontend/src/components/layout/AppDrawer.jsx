@@ -6,6 +6,7 @@ import { useDrawerItems } from '@/hooks/useDrawerItems';
 import { colors, drawer, transitions } from '@/theme/tokens';
 
 export const AppDrawer = ({ perfil, onLogout }) => {
+  console.log(perfil, typeof perfil);
   const itens = useDrawerItems(perfil);
   const [hovered, setHovered] = useState(false);
   const collapsed = !hovered;

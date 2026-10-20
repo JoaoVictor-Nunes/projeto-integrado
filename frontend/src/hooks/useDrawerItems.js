@@ -6,6 +6,7 @@ import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlin
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import CollectionsBookmarkOutlinedIcon from '@mui/icons-material/CollectionsBookmarkOutlined';
+import TimelineIcon from '@mui/icons-material/Timeline';
 
 /**
  * Itens disponíveis para ALUNO e PROFESSOR (usuário "simples").
@@ -22,9 +23,10 @@ const ITENS_BASE = [
 
 /** Itens extras, visíveis somente para ADMINISTRADOR. */
 const ITENS_ADMIN = [
-  { label: 'Central de Admin', path: '/admin/dashboard', Icon: AdminPanelSettingsOutlinedIcon },
+  { label: 'Estatisticas ', path: '/admin/estatisticas', Icon: AdminPanelSettingsOutlinedIcon },
   { label: 'Gerenciar Usuários', path: '/admin/usuarios', Icon: GroupOutlinedIcon },
-  { label: 'Gerenciar Livros', path: '/admin/livros', Icon: CollectionsBookmarkOutlinedIcon },
+  { label: 'Gerenciar Livros', path: '/admin/acervo', Icon: CollectionsBookmarkOutlinedIcon },
+  { label: 'Central de Logs', path: '/admin/auditoria', Icon: TimelineIcon},
 ];
 
 /**
@@ -34,7 +36,7 @@ const ITENS_ADMIN = [
  * @param {string} perfil - 'ALUNO' | 'PROFESSOR' | 'ADMINISTRADOR'
  */
 export function useDrawerItems(perfil) {
-  if (perfil === 'ADMINISTRADOR') {
+  if (perfil === 'ADMIN') {
     return [...ITENS_BASE, ...ITENS_ADMIN];
   }
   return ITENS_BASE;
