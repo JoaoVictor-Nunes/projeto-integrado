@@ -11,6 +11,7 @@ import GestaoAcervo from "@/pages/admin/gestaoAcervo/GestaoAcervo";
 import GestaoUsuarios from "@/pages/admin/gestaoUsuarios/GestaoUsuarios";
 import PageNotFound from "@/pages/PageNotFound/PageNotFound";
 import Auditoria from "@/pages/admin/Auditoria/Auditoria";
+import { LandingPage } from "@/pages/landing/LandingHome";
 
 import RotasProtegidas from "./RotasProtegidas";
 import MeusLivros from "@/pages/UserPadrao/meus-livros/MeusLivros";
@@ -24,8 +25,7 @@ export const AppRoutes = () => {
 
       {/* Rotas Públicas */}
       <Route path="/login" element={<Auth />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/acervo" element={<Acervo/>} />
+      <Route path="/" element={<LandingPage />} />
 
       {/* Rotas Protegidas - Usuário / Aluno / Professor */}
       <Route element={<RotasProtegidas />}>
@@ -34,6 +34,8 @@ export const AppRoutes = () => {
         <Route path="/materiais" element={<Material />} />
         <Route path="/perfil" element={<PerfilUsuario />} />
         <Route path="/meus-livros" element={< MeusLivros />} />
+        <Route path="/acervo" element={<Acervo/>} />
+        <Route path="/home" element={< Home />} />
       </Route>
 
       {/* Rotas Protegidas - Apenas Administrador */}
