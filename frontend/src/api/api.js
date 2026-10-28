@@ -2,6 +2,11 @@ import axios from "axios";
 import { AUTH_SESSION_EXPIRED_EVENT } from "@/constants/auth";
 import { showGlobalAlert } from "@/services/alert.service";
 
+/**
+ * baseURL vem da variável de ambiente VITE_REACT_APP_API_URL (defina em um
+ * arquivo .env na raiz do front: VITE_REACT_APP_API_URL=http://localhost:8080/api).
+ * Sem a variável, cai no fallback local do backend Spring Boot.
+ */
 const baseURL =
   import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:8080/api";
 
@@ -12,6 +17,9 @@ const api = axios.create({
   },
 });
 
+/**
+ * Anexa o access token (sessionStorage) a toda requisição autenticada.
+ */
 api.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem("token");
@@ -25,6 +33,17 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+/**
+ * Trata respostas de erro em um único lugar:
+ * - 401 fora de /login ou /auth/login: tenta renovar o access token via
+ *   refresh token (localStorage) e repete a requisição original uma vez.
+ * - Refresh falhou ou não existe: limpa os tokens e dispara
+ *   AUTH_SESSION_EXPIRED_EVENT para o app redirecionar ao login.
+ * - Qualquer outro erro: mostra um alerta global com a mensagem do backend.
+ *
+ * O backend segue o padrão Problem Details (RFC 9457), então a mensagem
+ * de erro vem em "detail" (não em "message").
+ */
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -74,7 +93,9 @@ api.interceptors.response.use(
       }
     }
 
-    if (error.response?.status !== 401) {
+    // Requisições "invisíveis" (ex.: registro de histórico) passam
+    // { skipGlobalError: true } para falhar em silêncio, sem alerta.
+    if (error.response?.status !== 401 && !originalRequest?.skipGlobalError) {
       showGlobalAlert(
         `${error.response?.status} - ${error.response?.data?.detail ?? "Erro inesperado."}`,
         "error"

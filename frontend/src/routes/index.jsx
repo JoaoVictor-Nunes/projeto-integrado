@@ -21,7 +21,7 @@ export const AppRoutes = () => {
   return (
     <Routes>
       {/* Redirecionamento inicial */}
-      <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route path="/home" element={<Home />} />
 
       {/* Rotas Públicas */}
       <Route path="/login" element={<Auth />} />
