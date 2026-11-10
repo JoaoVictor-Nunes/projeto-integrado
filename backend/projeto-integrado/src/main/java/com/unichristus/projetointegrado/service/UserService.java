@@ -39,6 +39,7 @@ public class UserService {
         String prefixo = switch (perfil) {
             case ALUNO -> "ALU";
             case PROFESSOR -> "PRO";
+            case BIBLIOTECARIO -> "BIB";
             case ADMIN -> "ADM";
         };
         String ano = String.valueOf(java.time.LocalDate.now().getYear());

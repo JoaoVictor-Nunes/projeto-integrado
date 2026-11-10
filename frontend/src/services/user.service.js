@@ -20,9 +20,9 @@ export async function buscarUsuarioPorId(id) {
   return response.data;
 }
 
-/** Atualiza nome e e-mail de um usuário existente. */
-export async function atualizarUsuario(id, { nome, email }) {
-  const response = await api.put(`/users/${id}`, { nome, email });
+/** Atualiza nome, e-mail, perfil e (opcional) senha de um usuário existente. */
+export async function atualizarUsuario(id, { nome, email, perfil, senha }) {
+  const response = await api.put(`/users/${id}`, { nome, email, perfil, senha });
   return response.data;
 }
 

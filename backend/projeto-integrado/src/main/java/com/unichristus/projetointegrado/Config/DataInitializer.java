@@ -31,19 +31,34 @@ public class DataInitializer {
                 System.out.println(">>> Usuário admin@sibv.com criado com sucesso!");
             }
 
-            // 2. Criar Professor / Usuário Padrão
+            // 2. Criar Professor
             if (!userRepository.existsByEmail("professor@sibv.com")) {
                 User professor = new User();
                 professor.setNome("Professor Teste");
                 professor.setEmail("professor@sibv.com");
                 professor.setMatricula("PROF0001");
                 professor.setSenhaHash(passwordEncoder.encode("Professor123"));
-                professor.setPerfil(TipoPerfil.ALUNO); 
+                professor.setPerfil(TipoPerfil.PROFESSOR);
                 professor.setStatusAtivo(true);
                 professor.setDataCriacao(LocalDateTime.now());
 
                 userRepository.save(professor);
                 System.out.println(">>> Usuário professor@sibv.com criado com sucesso!");
+            }
+
+            // 3. Criar Bibliotecário
+            if (!userRepository.existsByEmail("bibliotecario@sibv.com")) {
+                User bibliotecario = new User();
+                bibliotecario.setNome("Bibliotecário Teste");
+                bibliotecario.setEmail("bibliotecario@sibv.com");
+                bibliotecario.setMatricula("BIB0001");
+                bibliotecario.setSenhaHash(passwordEncoder.encode("Biblioteca123"));
+                bibliotecario.setPerfil(TipoPerfil.BIBLIOTECARIO);
+                bibliotecario.setStatusAtivo(true);
+                bibliotecario.setDataCriacao(LocalDateTime.now());
+
+                userRepository.save(bibliotecario);
+                System.out.println(">>> Usuário bibliotecario@sibv.com criado com sucesso!");
             }
         };
     }
