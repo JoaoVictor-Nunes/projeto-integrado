@@ -44,3 +44,12 @@ export async function favoritarMaterial(materialId) {
 export async function desfavoritarMaterial(materialId) {
   await api.delete(`/leitura/${materialId}/favorito`);
 }
+
+/**
+ * Lista os materiais favoritados pelo usuário logado, do mais recente
+ * para o mais antigo: [{ id, material: {...}, dataAdicao }].
+ */
+export async function listarFavoritos() {
+  const { data } = await api.get("/leitura/favoritos");
+  return data;
+}

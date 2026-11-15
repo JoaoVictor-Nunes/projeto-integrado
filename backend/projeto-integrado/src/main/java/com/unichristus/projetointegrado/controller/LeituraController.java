@@ -1,5 +1,6 @@
 package com.unichristus.projetointegrado.controller;
 
+import com.unichristus.projetointegrado.domain.dto.Favorito.FavoritoResponseDTO;
 import com.unichristus.projetointegrado.domain.dto.LeituraResponseDTO;
 import com.unichristus.projetointegrado.domain.dto.ProgressoRequestDTO;
 import com.unichristus.projetointegrado.security.UserDetailsImpl;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * Leitura de materiais pelo usuário LOGADO. Fica em /api/leitura (e não
  * em /api/materiais) de propósito: qualquer usuário logado pode usar, e o
@@ -29,6 +32,12 @@ public class LeituraController {
 
     public LeituraController(LeituraService leituraService) {
         this.leituraService = leituraService;
+    }
+
+    /** GET /api/leitura/favoritos — materiais favoritados pelo usuário logado. */
+    @GetMapping("/favoritos")
+    public List<FavoritoResponseDTO> listarFavoritos(@AuthenticationPrincipal UserDetailsImpl principal) {
+        return leituraService.listarFavoritos(principal.getUser().getId());
     }
 
     /** GET /api/leitura/{materialId} — abre o material (link, progresso, favorito) e grava no histórico. */

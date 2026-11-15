@@ -1,5 +1,6 @@
 package com.unichristus.projetointegrado.service;
 
+import com.unichristus.projetointegrado.domain.dto.Favorito.FavoritoResponseDTO;
 import com.unichristus.projetointegrado.domain.dto.LeituraResponseDTO;
 import com.unichristus.projetointegrado.domain.dto.ProgressoRequestDTO;
 import com.unichristus.projetointegrado.domain.dto.material.LinkArquivoDTO;
@@ -14,6 +15,8 @@ import com.unichristus.projetointegrado.repository.ProgressoLeituraRepository;
 import com.unichristus.projetointegrado.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Experiência de leitura: abrir um material, lembrar onde o usuário parou
@@ -91,6 +94,15 @@ public class LeituraService {
         favorito.setUsuario(userRepository.getReferenceById(usuarioId));
         favorito.setMaterial(materialRepository.getReferenceById(materialId));
         favoritoRepository.save(favorito);
+    }
+
+    /** Materiais favoritados pelo usuário, do mais recente para o mais antigo. */
+    @Transactional(readOnly = true)
+    public List<FavoritoResponseDTO> listarFavoritos(Long usuarioId) {
+        return favoritoRepository.findByUsuarioIdOrderByDataCriacaoDesc(usuarioId).stream()
+                .map(f -> new FavoritoResponseDTO(
+                        f.getId(), materialService.toResponse(f.getMaterial()), f.getDataCriacao()))
+                .toList();
     }
 
     /** Remove o favorito. Se não estava favoritado, não faz nada. */
