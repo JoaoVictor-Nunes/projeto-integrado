@@ -5,9 +5,6 @@ import com.unichristus.projetointegrado.domain.dto.auth.ForgotPasswordRequestDTO
 import com.unichristus.projetointegrado.domain.dto.auth.VerifyResetCodeRequestDTO;
 import com.unichristus.projetointegrado.domain.dto.auth.VerifyResetCodeResponseDTO;
 import com.unichristus.projetointegrado.domain.dto.auth.ResetPasswordRequestDTO;
-import com.unichristus.projetointegrado.domain.dto.auth.RegisterEmailVerificationRequestDTO;
-import com.unichristus.projetointegrado.domain.dto.auth.VerifyRegisterCodeRequestDTO;
-import com.unichristus.projetointegrado.domain.dto.auth.RegisterEmailVerificationResponseDTO;
 import com.unichristus.projetointegrado.domain.dto.LoginResponseDTO;
 import com.unichristus.projetointegrado.domain.dto.RefreshTokenRequestDTO;
 import com.unichristus.projetointegrado.domain.dto.user.UserResponseDTO;
@@ -15,7 +12,6 @@ import com.unichristus.projetointegrado.security.JwtService;
 import com.unichristus.projetointegrado.security.UserDetailsImpl;
 import com.unichristus.projetointegrado.security.UserDetailsServiceImpl;
 import com.unichristus.projetointegrado.service.PasswordResetService;
-import com.unichristus.projetointegrado.service.RegisterEmailVerificationService;
 import com.unichristus.projetointegrado.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,20 +36,17 @@ public class AuthController {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtService jwtService;
     private final PasswordResetService passwordResetService;
-    private final RegisterEmailVerificationService registerEmailVerificationService;
     private final UserService userService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           UserDetailsServiceImpl userDetailsService,
                           JwtService jwtService,
                           PasswordResetService passwordResetService,
-                          RegisterEmailVerificationService registerEmailVerificationService,
                           UserService userService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
         this.passwordResetService = passwordResetService;
-        this.registerEmailVerificationService = registerEmailVerificationService;
         this.userService = userService;
     }
 
@@ -81,25 +74,6 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponseDTO(accessToken, refreshToken, userResponse));
     }
 
-    /**
-     * POST /auth/register/request-code
-     * Guarda temporariamente os dados do cadastro e envia um código para o e-mail.
-     */
-    @PostMapping("/register/request-code")
-    public ResponseEntity<Void> requestRegisterCode(@Valid @RequestBody RegisterEmailVerificationRequestDTO dto) {
-        registerEmailVerificationService.solicitarCodigo(dto);
-        return ResponseEntity.accepted().build();
-    }
-
-    /**
-     * POST /auth/register/verify-code
-     * Confirma o e-mail e só então cria a conta.
-     */
-    @PostMapping("/register/verify-code")
-    public ResponseEntity<RegisterEmailVerificationResponseDTO> verifyRegisterCode(@Valid @RequestBody VerifyRegisterCodeRequestDTO dto) {
-        UserResponseDTO usuario = registerEmailVerificationService.verificarCodigo(dto.email(), dto.code());
-        return ResponseEntity.ok(new RegisterEmailVerificationResponseDTO(usuario));
-    }
 
     /**
      * POST /auth/forgot-password
@@ -175,4 +149,3 @@ public class AuthController {
                 user.getMatricula(), user.getPerfil(), user.getStatusAtivo()));
     }
 }
-

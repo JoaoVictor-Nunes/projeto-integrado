@@ -259,7 +259,8 @@ public class MaterialService {
         return new ResourceNotFoundException("Material não encontrado: id=" + id);
     }
 
-    private MaterialResponseDTO toResponse(Material m) {
+    /** Converte a entidade para o DTO da API. As disciplinas precisam estar carregadas. */
+    public MaterialResponseDTO toResponse(Material m) {
         List<DisciplinaResumoDTO> disciplinas = m.getDisciplinas() == null ? List.of()
                 : m.getDisciplinas().stream()
                 .map(d -> new DisciplinaResumoDTO(d.getId(), d.getNome()))
