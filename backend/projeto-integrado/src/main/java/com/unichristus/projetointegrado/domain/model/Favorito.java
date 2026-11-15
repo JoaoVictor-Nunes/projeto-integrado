@@ -1,29 +1,40 @@
 package com.unichristus.projetointegrado.domain.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+
+/**
+ * Material favoritado por um usuário. O par (usuário, material) é único:
+ * favoritar duas vezes não cria duas linhas.
+ */
 @Entity
-@Table(name = "tb_favoritos")
+@Table(
+        name = "tb_favorito",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_favorito_usuario_material", columnNames = {"usuario_id", "material_id"}))
+@Getter
+@Setter
+@NoArgsConstructor
 public class Favorito {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private User usuario;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "material_id", nullable = false)
     private Material material;
 
-    @Column(nullable = false)
-    private LocalDateTime dataFavoritado;
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime dataCriacao;
 }

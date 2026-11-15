@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MaterialRepository extends JpaRepository<Material, Long> {
 
@@ -22,10 +23,18 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
         order by m.titulo
         """)
     List<Material> pesquisar(
-        @Param("titulo") String titulo,
-        @Param("autor") String autor,
-        @Param("disciplina") String disciplina,
-        @Param("palavrasChave") String palavrasChave,
-        @Param("etapaEnsino") EtapaEnsino etapaEnsino
+            @Param("titulo") String titulo,
+            @Param("autor") String autor,
+            @Param("disciplina") String disciplina,
+            @Param("palavrasChave") String palavrasChave,
+            @Param("etapaEnsino") EtapaEnsino etapaEnsino
     );
+
+    /**
+     * Busca um material já com as disciplinas carregadas. Usado quando a
+     * entidade vai ser lida fora de uma transação (ex.: depois de um upload),
+     * para não estourar LazyInitializationException.
+     */
+    @Query("select m from Material m left join fetch m.disciplinas where m.id = :id")
+    Optional<Material> findDetalhadoById(@Param("id") Long id);
 }

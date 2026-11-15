@@ -22,6 +22,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Pagination from "@/components/Pagination";
 import { atualizarUsuario, cadastrarUsuario, desativarUsuario, listarUsuarios } from "@/services/user.service";
+import AppLayout from "@/components/layout/AppLayout";
 const ROLES = [
   { value: "ALUNO", label: "Aluno" },
   { value: "PROFESSOR", label: "Professor" },
@@ -124,7 +125,9 @@ export default function GestaoUsuarios() {
 
   const inputSx = { "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "var(--rest)", "&.Mui-focused": { bgcolor: "var(--white)" }, "&.Mui-focused fieldset": { borderColor: "var(--teal-primary)" } } };
 
-  return <Box sx={{ minHeight: "100vh", bgcolor: "var(--teal-surface)", px: { xs: 2, md: 4, xl: 6 }, py: { xs: 2.5, md: 4 }, fontFamily: "Poppins, sans-serif" }}>
+  return (
+    <AppLayout>
+  <Box sx={{ minHeight: "100vh", bgcolor: "var(--teal-surface)", px: { xs: 2, md: 4, xl: 6 }, py: { xs: 2.5, md: 4 }, fontFamily: "Poppins, sans-serif" }}>
     <Box sx={{ maxWidth: 1440, mx: "auto" }}>
       <Button onClick={() => navigate("/admin/estatisticas")} startIcon={<ArrowBack />} sx={{ mb: 3, color: "var(--teal-deep)", textTransform: "none", fontWeight: 500 }}>Voltar para Central de Administração</Button>
       <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ sm: "end" }} spacing={2} sx={{ mb: 3 }}>
@@ -206,5 +209,7 @@ export default function GestaoUsuarios() {
       <DialogActions><Button onClick={() => setDetailsUser(null)} sx={{ textTransform: "none" }}>Fechar</Button></DialogActions>
     </Dialog>
     <Snackbar open={Boolean(notice)} autoHideDuration={3500} onClose={() => setNotice("")} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}><Alert severity="success" onClose={() => setNotice("")} sx={{ width: "100%" }}>{notice}</Alert></Snackbar>
-  </Box>;
+  </Box>
+  </AppLayout>
+  );
 }

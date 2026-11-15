@@ -26,6 +26,17 @@ public class HistoricoLeituraService {
 
     private static final int TAMANHO_MAXIMO_PAGINA = 100;
 
+    /**
+     * Trincos para serializar o "conferir se é repetido + gravar". Sem isso,
+     * duas requisições simultâneas (duplo clique, duas abas, efeito duplo do
+     * React) conferem ao mesmo tempo, as duas acham que não há registro e as
+     * duas gravam. O mesmo (usuário, material, tipo) sempre cai no mesmo
+     * trinco; combinações diferentes quase nunca se bloqueiam entre si, e a
+     * quantidade de trincos é fixa, então a memória não cresce.
+     */
+    private static final int QUANTIDADE_TRINCOS = 64;
+    private final Object[] trincos = criarTrincos();
+
     private final HistoricoLeituraRepository historicoRepository;
     private final UserRepository userRepository;
     private final MaterialRepository materialRepository;
@@ -41,26 +52,31 @@ public class HistoricoLeituraService {
     @Async
     public void registrarAcesso(Long usuarioId, Long materialId, TipoAcesso tipoAcesso) {
         try {
-            LocalDateTime agora = LocalDateTime.now();
+            // Só uma thread por vez confere e grava para o mesmo acesso. O
+            // save() confirma no banco antes de retornar, então a próxima
+            // thread já enxerga o registro e descarta o repetido.
+            synchronized (trincoDe(usuarioId, materialId, tipoAcesso)) {
+                LocalDateTime agora = LocalDateTime.now();
 
-            boolean repetido = historicoRepository
-                    .existsByUsuarioIdAndMaterialIdAndTipoAcessoAndDataAcessoAfter(
-                            usuarioId, materialId, tipoAcesso, agora.minus(JANELA_DEDUPLICACAO));
-            if (repetido) {
-                return;
+                boolean repetido = historicoRepository
+                        .existsByUsuarioIdAndMaterialIdAndTipoAcessoAndDataAcessoAfter(
+                                usuarioId, materialId, tipoAcesso, agora.minus(JANELA_DEDUPLICACAO));
+                if (repetido) {
+                    return;
+                }
+
+                if (!materialRepository.existsById(materialId)) {
+                    log.debug("Histórico ignorado: material {} inexistente", materialId);
+                    return;
+                }
+
+                HistoricoLeitura registro = new HistoricoLeitura();
+                registro.setUsuario(userRepository.getReferenceById(usuarioId));
+                registro.setMaterial(materialRepository.getReferenceById(materialId));
+                registro.setTipoAcesso(tipoAcesso);
+                registro.setDataAcesso(agora);
+                historicoRepository.save(registro);
             }
-
-            if (!materialRepository.existsById(materialId)) {
-                log.debug("Histórico ignorado: material {} inexistente", materialId);
-                return;
-            }
-
-            HistoricoLeitura registro = new HistoricoLeitura();
-            registro.setUsuario(userRepository.getReferenceById(usuarioId));
-            registro.setMaterial(materialRepository.getReferenceById(materialId));
-            registro.setTipoAcesso(tipoAcesso);
-            registro.setDataAcesso(agora);
-            historicoRepository.save(registro);
         } catch (RuntimeException ex) {
             log.warn("Falha ao registrar histórico (ignorada): usuario={}, material={}, tipo={}",
                     usuarioId, materialId, tipoAcesso, ex);
@@ -76,6 +92,19 @@ public class HistoricoLeituraService {
         return historicoRepository
                 .findByUsuarioIdOrderByDataAcessoDesc(usuarioId, pageable)
                 .map(this::toResponse);
+    }
+
+    private Object trincoDe(Long usuarioId, Long materialId, TipoAcesso tipoAcesso) {
+        int indice = Math.floorMod(java.util.Objects.hash(usuarioId, materialId, tipoAcesso), QUANTIDADE_TRINCOS);
+        return trincos[indice];
+    }
+
+    private static Object[] criarTrincos() {
+        Object[] lista = new Object[QUANTIDADE_TRINCOS];
+        for (int i = 0; i < lista.length; i++) {
+            lista[i] = new Object();
+        }
+        return lista;
     }
 
     private HistoricoLeituraResponseDTO toResponse(HistoricoLeitura h) {

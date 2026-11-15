@@ -8,11 +8,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 
 @RestControllerAdvice
@@ -70,6 +75,35 @@ public class GlobalExceptioHandler {
         pd.setTitle(title);
         pd.setType(URI.create("about:blank"));
         return pd;
+    }
+
+    // Arquivo maior que spring.servlet.multipart.max-file-size (50MB)
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ProblemDetail handleUploadGrande(MaxUploadSizeExceededException ex) {
+        return problem(HttpStatus.CONTENT_TOO_LARGE, "Arquivo muito grande",
+                "O arquivo excede o tamanho máximo permitido.");
+    }
+
+    // MinIO/S3 fora do ar, credencial inválida etc.
+    @ExceptionHandler(ArmazenamentoException.class)
+    public ProblemDetail handleArmazenamento(ArmazenamentoException ex) {
+        log.error("Falha no armazenamento de arquivos", ex);
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, "Armazenamento indisponível",
+                "Não foi possível acessar o armazenamento de arquivos. Tente novamente em instantes.");
+    }
+
+    // Erros do CLIENTE que o handler genérico (Exception.class) estava
+    // transformando em 500: parte do multipart ausente, JSON malformado,
+    // enum inválido no corpo, parâmetro faltando ou com tipo errado
+    // (ex.: ?etapaEnsino=XYZ).
+    @ExceptionHandler({
+            MissingServletRequestPartException.class,
+            MissingServletRequestParameterException.class,
+            HttpMessageNotReadableException.class,
+            MethodArgumentTypeMismatchException.class })
+    public ProblemDetail handleRequisicaoInvalida(Exception ex) {
+        return problem(HttpStatus.BAD_REQUEST, "Requisição inválida",
+                "A requisição está incompleta ou com valores inválidos.");
     }
 
 

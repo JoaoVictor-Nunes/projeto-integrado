@@ -1,28 +1,22 @@
 package com.unichristus.projetointegrado.domain.dto.material;
 
-import com.unichristus.projetointegrado.domain.dto.disciplina.DisciplinaResponseDTO;
+import java.util.List;
+
 import com.unichristus.projetointegrado.domain.model.EtapaEnsino;
 
-import java.util.Set;
-
-public class MaterialResponseDTO {
-    private Long id;
-
-    private String titulo;
-
-    private String autor;
-
-    private String resumo;
-
-    private String capaUrl;
-
-    private String arquivoPrfUrl;
-
-    private Double tamanhoMb;
-
-    private EtapaEnsino etapaEnsino;
-
-    private Boolean statusAtivo;
-
-    Set<DisciplinaResponseDTO> disciplinas;
+/**
+ * Material como o front-end enxerga. O link do PDF NÃO vai aqui: ele é
+ * pedido sob demanda em GET /api/materiais/{id}/arquivo (link
+ * temporário), então a listagem não expõe o arquivo a quem só navega.
+ * "capaUrl" já vem pronta para uso em <img>, válida por 1 hora.
+ */
+public record MaterialResponseDTO(
+        Long id,
+        String titulo,
+        String autor,
+        String resumo,
+        String capaUrl,
+        boolean possuiArquivo,
+        EtapaEnsino etapaEnsino,
+        List<DisciplinaResumoDTO> disciplinas) {
 }

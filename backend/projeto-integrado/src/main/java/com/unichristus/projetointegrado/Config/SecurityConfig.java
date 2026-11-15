@@ -3,6 +3,7 @@ package com.unichristus.projetointegrado.Config;
 import com.unichristus.projetointegrado.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,6 +35,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/materiais/**").permitAll()
                         // Estas duas agem sobre o usuário do token: precisam vir ANTES do permitAll abaixo.
                         .requestMatchers("/api/users/logout", "/api/users/senha").authenticated()
+                        // Consultar acervo e disciplinas: qualquer usuário logado.
+                        .requestMatchers(HttpMethod.GET, "/api/disciplinas", "/api/disciplinas/**").authenticated()
+                        // Cadastrar, editar, enviar arquivos e excluir: só administrador.
+                        .requestMatchers("/api/disciplinas", "/api/disciplinas/**").permitAll()
                         .requestMatchers("/api/users", "/api/users/**").permitAll() // ver ATENÇÃO acima
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

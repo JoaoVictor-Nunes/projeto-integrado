@@ -27,7 +27,7 @@ const Historico = () => {
   if (!user) return <Navigate to="/login" replace />;
 
   // ASSUMIDO: rota de detalhe/leitura da obra. Ajuste ao seu routes/.
-  const abrirMaterial = (item) => navigate(`/acervo/${item.materialId}`);
+  const abrirMaterial = (item) => navigate(`/material/${item.materialId}`);
 
   return (
     <AppLayout>

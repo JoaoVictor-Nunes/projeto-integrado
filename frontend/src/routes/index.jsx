@@ -32,6 +32,7 @@ export const AppRoutes = () => {
         <Route path="/favoritos" element={<Favoritos />} />
         <Route path="/historico" element={<Historico />} />
         <Route path="/materiais" element={<Material />} />
+        <Route path="/material/:id" element={<Material />} />
         <Route path="/perfil" element={<PerfilUsuario />} />
         <Route path="/meus-livros" element={< MeusLivros />} />
         <Route path="/acervo" element={<Acervo/>} />

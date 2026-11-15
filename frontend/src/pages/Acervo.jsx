@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Alert, Box, Button, Card, CardContent, Chip, CircularProgress,
+  Alert, Box, Button, Card, CardActionArea, CardContent, Chip, CircularProgress,
   FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography
 } from "@mui/material";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { Link as RouterLink } from "react-router-dom";
 import api from "@/api/api";
+import AppLayout from "@/components/layout/AppLayout";
 
 const etapaLabels = {
   FUNDAMENTAL: "Ensino Fundamental",
@@ -58,6 +61,7 @@ const Acervo = () => {
   );
 
   return (
+    <AppLayout>
     <Box sx={{ maxWidth: 1180, mx: "auto", px: { xs: 2, md: 4 }, py: 4 }}>
       <Typography variant="overline" color="primary" fontWeight={700}>BIBLIOTECA VIRTUAL</Typography>
       <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>Explore o acervo</Typography>
@@ -122,25 +126,35 @@ const Acervo = () => {
             const disciplinas = material.disciplinas ?? [];
             return (
               <Card key={material.id} variant="outlined" sx={{ borderRadius: 3, display: "flex", flexDirection: "column" }}>
-                {material.capaUrl && <Box component="img" src={material.capaUrl} alt={`Capa de ${material.titulo}`} sx={{ width: "100%", height: 170, objectFit: "cover" }} />}
-                <CardContent sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
-                  <Typography variant="h6" fontWeight={700}>{material.titulo}</Typography>
-                  <Typography color="text.secondary" variant="body2" sx={{ mt: 0.5 }}>Por {material.autor || "Autor não informado"}</Typography>
-                  <Typography variant="body2" sx={{ my: 1.5, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                    {material.resumo || "Sem descrição disponível."}
-                  </Typography>
-                  <Stack direction="row" flexWrap="wrap" gap={0.75} sx={{ mt: "auto", mb: 2 }}>
-                    {disciplinas.map((disciplina) => <Chip key={disciplina.id ?? disciplina.nome} size="small" label={disciplina.nome ?? disciplina} />)}
-                    {material.etapaEnsino && <Chip size="small" variant="outlined" label={etapaLabels[material.etapaEnsino] ?? material.etapaEnsino} />}
-                  </Stack>
-                  {material.arquivoPdfUrl && <Button component="a" href={material.arquivoPdfUrl} target="_blank" rel="noreferrer" variant="contained">Abrir material</Button>}
-                </CardContent>
+                {/* O card inteiro é um link para a tela de leitura. */}
+                <CardActionArea
+                  component={RouterLink}
+                  to={`/material/${material.id}`}
+                  sx={{ display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent: "flex-start", flexGrow: 1 }}
+                >
+                  {material.capaUrl && <Box component="img" src={material.capaUrl} alt={`Capa de ${material.titulo}`} sx={{ width: "100%", height: 170, objectFit: "cover" }} />}
+                  <CardContent sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
+                    <Typography variant="h6" fontWeight={700}>{material.titulo}</Typography>
+                    <Typography color="text.secondary" variant="body2" sx={{ mt: 0.5 }}>Por {material.autor || "Autor não informado"}</Typography>
+                    <Typography variant="body2" sx={{ my: 1.5, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                      {material.resumo || "Sem descrição disponível."}
+                    </Typography>
+                    <Stack direction="row" flexWrap="wrap" gap={0.75} sx={{ mt: "auto", mb: 2 }}>
+                      {disciplinas.map((disciplina) => <Chip key={disciplina.id ?? disciplina.nome} size="small" label={disciplina.nome ?? disciplina} />)}
+                      {material.etapaEnsino && <Chip size="small" variant="outlined" label={etapaLabels[material.etapaEnsino] ?? material.etapaEnsino} />}
+                    </Stack>
+                    <Typography color="primary" fontWeight={700} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      Ler material <ArrowForwardIcon fontSize="small" />
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
               </Card>
             );
           })}
         </Box>
       )}
     </Box>
+    </AppLayout>
   );
 };
 
