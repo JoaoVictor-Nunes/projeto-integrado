@@ -29,8 +29,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
                 or lower(u.email) like lower(concat('%', :busca, '%')))
         
 """)
-    Page<User> buscarPorTermoEPerfil(@Param("bucas") String busca,
+    Page<User> buscarPorTermoEPerfil(@Param("busca") String busca,
                                      @Param("perfil")TipoPerfil perfil,
                                      Pageable pageable);
 
 }
+
