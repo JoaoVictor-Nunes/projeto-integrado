@@ -11,6 +11,7 @@ import {
 import {
   atualizarMaterial, cadastrarMaterial, inativarMaterial, listarDisciplinas, listarMateriais
 } from "@/services/material.service";
+import { colors } from "@/theme/tokens";
 
 const ETAPAS = [
   { value: "FUNDAMENTAL", label: "Ensino Fundamental" },
@@ -152,8 +153,8 @@ export default function GestaoAcervo() {
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: "auto" }}>
       <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ sm: "center" }} spacing={2} sx={{ mb: 3 }}>
         <Box>
-          <Typography sx={{ fontSize: 26, fontWeight: 700, color: "var(--ink)" }}>Gestão do acervo</Typography>
-          <Typography sx={{ color: "var(--muted)", fontSize: 14 }}>
+          <Typography sx={{ fontSize: 26, fontWeight: 700, color: colors.ink }}>Gestão do acervo</Typography>
+          <Typography sx={{ color: colors.muted, fontSize: 14 }}>
             Cadastre, edite e inative os materiais didáticos disponíveis para os usuários.
           </Typography>
         </Box>
@@ -165,7 +166,7 @@ export default function GestaoAcervo() {
       {notice && <Alert severity="success" onClose={() => setNotice("")} sx={{ mb: 2 }}>{notice}</Alert>}
       {error && <Alert severity="error" onClose={() => setError("")} sx={{ mb: 2 }}>{error}</Alert>}
 
-      <Paper elevation={0} sx={{ p: 2, mb: 2, borderRadius: "16px", border: "1px solid var(--rest-border)" }}>
+      <Paper elevation={0} sx={{ p: 2, mb: 2, borderRadius: "16px", border: `1px solid ${colors.restBorder}` }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
           <TextField
             size="small"
@@ -185,7 +186,7 @@ export default function GestaoAcervo() {
         </Stack>
       </Paper>
 
-      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: "16px", border: "1px solid var(--rest-border)" }}>
+      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: "16px", border: `1px solid ${colors.restBorder}` }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -202,7 +203,7 @@ export default function GestaoAcervo() {
             )}
             {!loading && materiaisFiltrados.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 5, color: "var(--muted)" }}>
+                <TableCell colSpan={5} align="center" sx={{ py: 5, color: colors.muted }}>
                   <MenuBookOutlined sx={{ fontSize: 36, opacity: 0.5 }} />
                   <Typography sx={{ mt: 1 }}>Nenhum material encontrado.</Typography>
                 </TableCell>
@@ -210,7 +211,7 @@ export default function GestaoAcervo() {
             )}
             {!loading && materiaisFiltrados.map((m) => (
               <TableRow key={m.id} hover>
-                <TableCell sx={{ fontWeight: 600, color: "var(--ink)" }}>{m.titulo}</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: colors.ink }}>{m.titulo}</TableCell>
                 <TableCell>{m.autor}</TableCell>
                 <TableCell>{etapaLabel(m.etapaEnsino)}</TableCell>
                 <TableCell>
@@ -268,7 +269,7 @@ export default function GestaoAcervo() {
               </Button>
             )}
             {dialog.modo === "editar" && (
-              <Typography sx={{ fontSize: 13, color: "var(--muted)" }}>
+              <Typography sx={{ fontSize: 13, color: colors.muted }}>
                 O arquivo do material não é alterado aqui.
               </Typography>
             )}
