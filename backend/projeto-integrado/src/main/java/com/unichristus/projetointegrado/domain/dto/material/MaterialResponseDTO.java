@@ -18,5 +18,9 @@ public record MaterialResponseDTO(
         String capaUrl,
         boolean possuiArquivo,
         EtapaEnsino etapaEnsino,
-        List<DisciplinaResumoDTO> disciplinas) {
+        List<DisciplinaResumoDTO> disciplinas,
+        String generoLiterario,
+        String formatoArquivo,
+        Double tamanhoMb,
+        Boolean statusAtivo) {
 }

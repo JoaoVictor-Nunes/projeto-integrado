@@ -17,7 +17,7 @@ public class CorsConfig {
                 "http://localhost:3000",  // Create React App
                 "http://localhost:5173"   // Vite
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
