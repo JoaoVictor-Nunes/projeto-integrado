@@ -51,7 +51,15 @@ public class Material {
     @Column(nullable = false)
     private EtapaEnsino etapaEnsino;
 
-    /** Tamanho do PDF em MB, calculado no upload. */
+    /** Gênero literário do material (ex.: Romance, Ficção Científica, Didático). */
+    @Column(name = "genero_literario", length = 120)
+    private String generoLiterario;
+
+    /** Soft delete: materiais inativados deixam de aparecer para os usuários comuns. */
+    @Column(name = "status_ativo")
+    private Boolean statusAtivo = Boolean.TRUE;
+
+    /** Tamanho do arquivo em MB, calculado no upload. */
     private Double tamanhoMb;
 
     /** Preenchida sozinha pelo Hibernate na criação. */

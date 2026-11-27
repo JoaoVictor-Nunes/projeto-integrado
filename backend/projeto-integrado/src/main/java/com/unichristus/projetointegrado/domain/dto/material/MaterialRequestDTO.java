@@ -26,6 +26,9 @@ public record MaterialRequestDTO(
         @NotNull(message = "A etapa de ensino é obrigatória.")
         EtapaEnsino etapaEnsino,
 
+        @Size(max = 120, message = "O gênero literário deve ter no máximo 120 caracteres.")
+        String generoLiterario,
+
         /** Disciplinas (categorias) associadas. Pode ser vazio. */
         List<Long> disciplinaIds) {
 }

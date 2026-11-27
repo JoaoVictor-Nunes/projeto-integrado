@@ -83,6 +83,15 @@ public class DataInitializer {
      * já corretos, não faz nada.
      */
     private void corrigirIdDisciplinas(JdbcTemplate jdbcTemplate) {
+        try (var conn = jdbcTemplate.getDataSource().getConnection()) {
+            String dbName = conn.getMetaData().getDatabaseProductName();
+            if (dbName == null || !dbName.toLowerCase().contains("postgres")) {
+                return;
+            }
+        } catch (Exception ignored) {
+            return;
+        }
+
         jdbcTemplate.execute("""
                 DO $$
                 BEGIN

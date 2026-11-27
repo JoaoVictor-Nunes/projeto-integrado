@@ -19,12 +19,11 @@ import com.unichristus.projetointegrado.domain.model.Disciplina;
 import com.unichristus.projetointegrado.domain.model.EtapaEnsino;
 import com.unichristus.projetointegrado.domain.model.Material;
 import com.unichristus.projetointegrado.domain.model.TipoAcesso;
-import com.unichristus.projetointegrado.exception.BusinessRuleException;
 import com.unichristus.projetointegrado.exception.ResourceNotFoundException;
 import com.unichristus.projetointegrado.repository.DisciplinaRepository;
 import com.unichristus.projetointegrado.repository.MaterialRepository;
+import com.unichristus.projetointegrado.service.ArquivoValidator.TipoArquivo;
 import com.unichristus.projetointegrado.service.ArquivoValidator.TipoImagem;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,10 +70,11 @@ public class MaterialService {
 
     @Transactional(readOnly = true)
     public List<MaterialResponseDTO> pesquisar(String titulo, String autor, String disciplina,
-                                               String palavrasChave, EtapaEnsino etapaEnsino) {
+                                               String palavrasChave, EtapaEnsino etapaEnsino,
+                                               String generoLiterario, boolean incluirInativos) {
         return materialRepository
                 .pesquisar(normalizar(titulo), normalizar(autor), normalizar(disciplina),
-                        normalizar(palavrasChave), etapaEnsino)
+                        normalizar(palavrasChave), etapaEnsino, normalizar(generoLiterario), incluirInativos)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -106,20 +106,21 @@ public class MaterialService {
     // Cadastro e edição
     // ------------------------------------------------------------------
 
-    /** Cadastra um material. O PDF é obrigatório; a capa é opcional. */
+    /** Cadastra um material. O arquivo (PDF ou ePub) é obrigatório; a capa é opcional. */
     public MaterialResponseDTO criar(MaterialRequestDTO dto, MultipartFile arquivo, MultipartFile capa) {
         // 1) Validar tudo ANTES de enviar qualquer coisa ao MinIO
-        validator.validarPdf(arquivo);
+        TipoArquivo tipoArquivo = validator.validarArquivoMaterial(arquivo);
         TipoImagem tipoCapa = temArquivo(capa) ? validator.validarCapa(capa) : null;
         Set<Disciplina> disciplinas = carregarDisciplinas(dto.disciplinaIds());
 
         Material material = new Material();
+        material.setStatusAtivo(Boolean.TRUE);
         aplicarDados(material, dto, disciplinas);
 
         // 2) Enviar os arquivos e 3) gravar no banco; se falhar, desfaz os envios
         List<String> enviados = new ArrayList<>();
         try {
-            material.setArquivoPdfUrl(enviarPdf(arquivo, enviados));
+            material.setArquivoPdfUrl(enviarArquivo(arquivo, tipoArquivo, enviados));
             material.setTamanhoMb(tamanhoEmMb(arquivo));
             if (tipoCapa != null) {
                 material.setCapaUrl(enviarCapa(capa, tipoCapa, enviados));
@@ -132,29 +133,27 @@ public class MaterialService {
     }
 
     /**
-     * Atualiza os dados e, só se vierem, troca o PDF e/ou a capa.
+     * Atualiza os dados e, só se vierem, troca o PDF/ePub e/ou a capa.
      * Os arquivos antigos só são apagados depois que o banco confirma.
      */
     public MaterialResponseDTO atualizar(Long id, MaterialRequestDTO dto,
                                          MultipartFile arquivo, MultipartFile capa) {
         Material material = buscarDetalhado(id); // 404 antes de qualquer upload
 
-        boolean trocaPdf = temArquivo(arquivo);
+        boolean trocaArquivo = temArquivo(arquivo);
         boolean trocaCapa = temArquivo(capa);
-        if (trocaPdf) {
-            validator.validarPdf(arquivo);
-        }
+        TipoArquivo tipoArquivo = trocaArquivo ? validator.validarArquivoMaterial(arquivo) : null;
         TipoImagem tipoCapa = trocaCapa ? validator.validarCapa(capa) : null;
         Set<Disciplina> disciplinas = carregarDisciplinas(dto.disciplinaIds());
 
-        String pdfAntigo = material.getArquivoPdfUrl();
+        String arquivoAntigo = material.getArquivoPdfUrl();
         String capaAntiga = material.getCapaUrl();
         aplicarDados(material, dto, disciplinas);
 
         List<String> enviados = new ArrayList<>();
         try {
-            if (trocaPdf) {
-                material.setArquivoPdfUrl(enviarPdf(arquivo, enviados));
+            if (trocaArquivo) {
+                material.setArquivoPdfUrl(enviarArquivo(arquivo, tipoArquivo, enviados));
                 material.setTamanhoMb(tamanhoEmMb(arquivo));
             }
             if (trocaCapa) {
@@ -162,8 +161,8 @@ public class MaterialService {
             }
             Material salvo = materialRepository.save(material);
 
-            if (trocaPdf) {
-                armazenamento.remover(pdfAntigo);
+            if (trocaArquivo) {
+                armazenamento.remover(arquivoAntigo);
             }
             if (trocaCapa) {
                 armazenamento.remover(capaAntiga);
@@ -176,27 +175,26 @@ public class MaterialService {
     }
 
     // ------------------------------------------------------------------
-    // Exclusão
+    // Inativação / Reativação (soft delete)
     // ------------------------------------------------------------------
 
     /**
-     * Exclui o material e seus arquivos. Se houver registros vinculados
-     * (histórico de leitura, favoritos), o banco recusa e nada é apagado.
+     * Inativa o material (soft delete). Ele deixa de aparecer para os
+     * usuários comuns sem quebrar históricos de leitura ou favoritos.
      */
+    @Transactional
     public void excluir(Long id) {
         Material material = materialRepository.findById(id).orElseThrow(() -> naoEncontrado(id));
-        String arquivo = material.getArquivoPdfUrl();
-        String capa = material.getCapaUrl();
+        material.setStatusAtivo(Boolean.FALSE);
+        materialRepository.save(material);
+    }
 
-        try {
-            materialRepository.delete(material);
-        } catch (DataIntegrityViolationException ex) {
-            throw new BusinessRuleException(
-                    "Não é possível excluir: o material possui registros vinculados (histórico ou favoritos).");
-        }
-
-        armazenamento.remover(arquivo);
-        armazenamento.remover(capa);
+    /** Reativa um material previamente inativado. */
+    @Transactional
+    public MaterialResponseDTO reativar(Long id) {
+        Material material = buscarDetalhado(id);
+        material.setStatusAtivo(Boolean.TRUE);
+        return toResponse(materialRepository.save(material));
     }
 
     // ------------------------------------------------------------------
@@ -208,13 +206,14 @@ public class MaterialService {
         material.setAutor(dto.autor().trim());
         material.setResumo(vazio(dto.resumo()) ? null : dto.resumo().trim());
         material.setEtapaEnsino(dto.etapaEnsino());
+        material.setGeneroLiterario(vazio(dto.generoLiterario()) ? null : dto.generoLiterario().trim());
         material.setDisciplinas(disciplinas);
     }
 
-    /** Envia o PDF e registra a chave em "enviados" (para desfazer se algo falhar depois). */
-    private String enviarPdf(MultipartFile arquivo, List<String> enviados) {
-        String chave = "materiais/%s.pdf".formatted(UUID.randomUUID());
-        armazenamento.enviar(chave, arquivo, "application/pdf");
+    /** Envia o PDF ou ePub e registra a chave em "enviados" (para desfazer se algo falhar depois). */
+    private String enviarArquivo(MultipartFile arquivo, TipoArquivo tipo, List<String> enviados) {
+        String chave = "materiais/%s.%s".formatted(UUID.randomUUID(), tipo.extensao());
+        armazenamento.enviar(chave, arquivo, tipo.contentType());
         enviados.add(chave);
         return chave;
     }
@@ -270,9 +269,13 @@ public class MaterialService {
         String capaUrl = vazio(m.getCapaUrl()) ? null
                 : armazenamento.gerarUrlLeitura(m.getCapaUrl(), VALIDADE_CAPA, false, null);
 
+        String formato = formatoDoArquivo(m.getArquivoPdfUrl());
+
         return new MaterialResponseDTO(
                 m.getId(), m.getTitulo(), m.getAutor(), m.getResumo(),
-                capaUrl, !vazio(m.getArquivoPdfUrl()), m.getEtapaEnsino(), disciplinas);
+                capaUrl, !vazio(m.getArquivoPdfUrl()), m.getEtapaEnsino(), disciplinas,
+                m.getGeneroLiterario(), formato, m.getTamanhoMb(),
+                !Boolean.FALSE.equals(m.getStatusAtivo()));
     }
 
     /** Nome sugerido ao baixar: título sem acento nem símbolos, ex.: "Calculo_I.pdf". */
@@ -281,7 +284,15 @@ public class MaterialService {
                 .replaceAll("\\p{M}+", "")
                 .replaceAll("[^A-Za-z0-9._-]+", "_")
                 .replaceAll("^_+|_+$", "");
-        return (base.isBlank() ? "material" : base) + ".pdf";
+        String extensao = "EPUB".equals(formatoDoArquivo(m.getArquivoPdfUrl())) ? ".epub" : ".pdf";
+        return (base.isBlank() ? "material" : base) + extensao;
+    }
+
+    private String formatoDoArquivo(String chave) {
+        if (vazio(chave)) {
+            return null;
+        }
+        return chave.toLowerCase().endsWith(".epub") ? "EPUB" : "PDF";
     }
 
     private String normalizar(String valor) {
