@@ -14,12 +14,35 @@ public class ArquivoValidator {
     private static final long TAMANHO_MAXIMO_CAPA = 5L * 1024 * 1024;
 
     private static final byte[] ASSINATURA_PDF = {'%', 'P', 'D', 'F', '-'};
+    private static final byte[] ASSINATURA_ZIP = {'P', 'K', 0x03, 0x04};
     private static final byte[] ASSINATURA_JPEG = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
     private static final byte[] ASSINATURA_PNG = {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A};
     private static final byte[] ASSINATURA_RIFF = {'R', 'I', 'F', 'F'};
 
+    /** Extensão e Content-Type confiáveis de um arquivo de material validado (PDF ou ePub). */
+    public record TipoArquivo(String extensao, String contentType) {
+    }
+
     /** Extensão e Content-Type confiáveis de uma imagem já validada. */
     public record TipoImagem(String extensao, String contentType) {
+    }
+
+    public TipoArquivo validarArquivoMaterial(MultipartFile arquivo) {
+        validarPresencaETamanho(arquivo, TAMANHO_MAXIMO_PDF);
+        byte[] h = cabecalho(arquivo);
+
+        if (comecaCom(h, ASSINATURA_PDF)) {
+            return new TipoArquivo("pdf", "application/pdf");
+        }
+
+        String nome = arquivo.getOriginalFilename() == null ? "" : arquivo.getOriginalFilename().toLowerCase();
+        String contentType = arquivo.getContentType() == null ? "" : arquivo.getContentType().toLowerCase();
+        boolean ehEpub = nome.endsWith(".epub") || contentType.contains("epub");
+        if (ehEpub && comecaCom(h, ASSINATURA_ZIP)) {
+            return new TipoArquivo("epub", "application/epub+zip");
+        }
+
+        throw new BusinessRuleException("O arquivo enviado deve ser um PDF ou ePub válido.");
     }
 
     public void validarPdf(MultipartFile arquivo) {

@@ -33,5 +33,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                      @Param("perfil")TipoPerfil perfil,
                                      Pageable pageable);
 
+    long countByStatusAtivoTrue();
 }
 

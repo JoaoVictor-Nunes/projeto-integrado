@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -46,15 +47,17 @@ public class MaterialController {
         this.materialService = materialService;
     }
 
-    /** GET /api/materiais?titulo=&autor=&disciplina=&palavrasChave=&etapaEnsino= */
+    /** GET /api/materiais?titulo=&autor=&disciplina=&palavrasChave=&etapaEnsino=&generoLiterario=&incluirInativos= */
     @GetMapping
     public List<MaterialResponseDTO> pesquisar(
             @RequestParam(required = false) String titulo,
             @RequestParam(required = false) String autor,
             @RequestParam(required = false) String disciplina,
             @RequestParam(required = false) String palavrasChave,
-            @RequestParam(required = false) EtapaEnsino etapaEnsino) {
-        return materialService.pesquisar(titulo, autor, disciplina, palavrasChave, etapaEnsino);
+            @RequestParam(required = false) EtapaEnsino etapaEnsino,
+            @RequestParam(required = false) String generoLiterario,
+            @RequestParam(defaultValue = "false") boolean incluirInativos) {
+        return materialService.pesquisar(titulo, autor, disciplina, palavrasChave, etapaEnsino, generoLiterario, incluirInativos);
     }
 
     @GetMapping("/{id}")
@@ -97,9 +100,16 @@ public class MaterialController {
         return materialService.atualizar(id, dados, arquivo, capa);
     }
 
+    /** DELETE /api/materiais/{id} — inativa o material (soft delete). */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         materialService.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /** PATCH /api/materiais/{id}/reativar — reativa um material inativado. */
+    @PatchMapping("/{id}/reativar")
+    public MaterialResponseDTO reativar(@PathVariable Long id) {
+        return materialService.reativar(id);
     }
 }
