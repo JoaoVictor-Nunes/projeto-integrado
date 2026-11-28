@@ -41,4 +41,16 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
      */
     @Query("select m from Material m left join fetch m.disciplinas where m.id = :id")
     Optional<Material> findDetalhadoById(@Param("id") Long id);
+
+    @Query("select count(m) from Material m where m.statusAtivo is null or m.statusAtivo = true")
+    long countAtivos();
+
+    @Query("""
+            select d.id, count(distinct m.id)
+            from Material m
+            join m.disciplinas d
+            where m.statusAtivo is null or m.statusAtivo = true
+            group by d.id
+            """)
+    List<Object[]> contarMateriaisAtivosPorDisciplina();
 }

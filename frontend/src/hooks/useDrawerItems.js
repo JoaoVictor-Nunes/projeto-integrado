@@ -23,7 +23,7 @@ const ITENS_BASE = [
 
 /** Itens extras, visíveis somente para ADMINISTRADOR. */
 const ITENS_ADMIN = [
-  { label: 'Estatisticas ', path: '/admin/estatisticas', Icon: AdminPanelSettingsOutlinedIcon },
+  { label: 'Estatísticas', path: '/admin/estatisticas', Icon: AdminPanelSettingsOutlinedIcon },
   { label: 'Gerenciar Usuários', path: '/admin/usuarios', Icon: GroupOutlinedIcon },
   { label: 'Gerenciar Livros', path: '/admin/acervo', Icon: CollectionsBookmarkOutlinedIcon },
   { label: 'Central de Logs', path: '/admin/auditoria', Icon: TimelineIcon},
